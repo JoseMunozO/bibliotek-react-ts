@@ -100,4 +100,4 @@ Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`.
 
 ## Licens
 
-Projektet är en del av min portfolio och har ännu ingen licens.
+Projektet är licensierat under [MIT-licensen](LICENSE).
