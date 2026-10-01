@@ -50,11 +50,11 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-ink">
           Notificaciones <Badge color={unread.length ? 'amber' : 'gray'}>{unread.length} sin leer</Badge>
         </h2>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-ink-soft">
             <input type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} />
             Solo sin leer
           </label>
@@ -72,7 +72,7 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
       {loading && <Loading />}
 
       {!loading && visible.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted">
           {onlyUnread ? 'No hay notificaciones sin leer.' : 'Este socio no tiene notificaciones.'}
         </p>
       ) : (
@@ -81,18 +81,19 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
             <li
               key={n.id}
               className={`flex flex-wrap items-start justify-between gap-3 rounded-lg border p-4 ${
-                n.read ? 'border-slate-200 bg-white' : 'border-indigo-200 bg-indigo-50'
+                n.read ? 'border-line bg-surface'
+                  : 'border-indigo-200 bg-indigo-50 dark:border-indigo-500/40 dark:bg-indigo-500/10'
               }`}
             >
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-sm ${n.read ? 'text-slate-700' : 'font-semibold text-slate-900'}`}>
+                  <span className={`text-sm ${n.read ? 'text-ink-soft' : 'font-semibold text-ink'}`}>
                     {notificationTypeLabel(n.type)}
                   </span>
-                  <span className="text-xs text-slate-500">{n.sentDate}</span>
-                  {n.loanId !== null && <span className="text-xs text-slate-500">· préstamo #{n.loanId}</span>}
+                  <span className="text-xs text-muted">{n.sentDate}</span>
+                  {n.loanId !== null && <span className="text-xs text-muted">· préstamo #{n.loanId}</span>}
                 </div>
-                <p className="text-sm text-slate-700">{n.message}</p>
+                <p className="text-sm text-ink-soft">{n.message}</p>
               </div>
               {n.read ? (
                 <Badge>Leída</Badge>

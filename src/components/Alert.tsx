@@ -1,6 +1,6 @@
 const styles = {
-  error: 'bg-red-50 text-red-700',
-  success: 'bg-green-50 text-green-700',
+  error: 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-300',
+  success: 'bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-300',
 }
 
 interface Props {

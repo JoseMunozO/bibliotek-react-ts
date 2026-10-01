@@ -8,7 +8,7 @@ const values = [1, 2, 3, 4, 5]
 
 export default function Stars({ rating, onChange }: Props) {
   const star = (value: number) => (
-    <span aria-hidden="true" className={value <= Math.round(rating) ? 'text-amber-400' : 'text-slate-300'}>
+    <span aria-hidden="true" className={value <= Math.round(rating) ? 'text-amber-400' : 'text-faint'}>
       ★
     </span>
   )

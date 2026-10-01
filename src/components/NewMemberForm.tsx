@@ -33,8 +33,8 @@ export default function NewMemberForm({ onCreated }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="font-medium text-slate-900">Nuevo socio</h2>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-surface p-4">
+      <h2 className="font-medium text-ink">Nuevo socio</h2>
       <div className="grid gap-2 sm:grid-cols-3">
         <Input
           required

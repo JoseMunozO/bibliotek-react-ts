@@ -58,15 +58,15 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
 
   if (!memberId && !session.can.reviewAsAnyMember)
     return (
-      <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
+      <p className="rounded-lg border border-line bg-surface p-4 text-sm text-muted">
         Elige quién eres en la cabecera para escribir una reseña.
       </p>
     )
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-      <h3 className="font-medium text-slate-900">Escribir una reseña</h3>
-      <p className="text-xs text-slate-500">Solo pueden opinar los socios que ya han devuelto este libro.</p>
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-surface p-4">
+      <h3 className="font-medium text-ink">Escribir una reseña</h3>
+      <p className="text-xs text-muted">Solo pueden opinar los socios que ya han devuelto este libro.</p>
       <div className="flex flex-wrap items-center gap-3">
         {session.can.reviewAsAnyMember && (
           <Select required value={selectedMemberId} onChange={(e) => setSelectedMemberId(e.target.value)}>
@@ -86,7 +86,7 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="¿Qué te ha parecido?"
-        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
       />
       <Alert message={error} />
       <Alert type="success" message={success} />

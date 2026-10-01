@@ -25,6 +25,10 @@ Det finns ingen inloggning. I stället väljer man en roll i sidhuvudet, precis 
 
 Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna styr bara gränssnittet – API:t har ingen autentisering.
 
+### Mörkt läge
+
+Appen följer systemets tema som standard, och i sidhuvudet kan man välja *Sistema*, *Claro* eller *Oscuro*. Valet sparas i webbläsaren och ett litet skript i `index.html` sätter temat innan sidan ritas, så att den inte blinkar till i ljust läge. Färgerna är semantiska tokens i `src/index.css` (`bg-surface`, `text-ink`, `border-line` …) med ett värde per tema, och alla text–bakgrund-kombinationer har en kontrast på minst 4,5:1 i båda lägena.
+
 ### Tillgänglighet
 
 Fel- och bekräftelsemeddelanden är *live regions* (`role="alert"` respektive `role="status"`) som alltid finns på sidan, så att skärmläsare läser upp dem när de dyker upp. Även laddningsindikatorn och antalet böcker läses upp, och betygsstjärnorna anger valt betyg (`aria-pressed`) och genomsnittet som text.

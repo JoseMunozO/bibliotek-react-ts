@@ -80,7 +80,7 @@ export default function BooksPage() {
             </option>
           ))}
         </Select>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-ink-soft">
           <input
             type="checkbox"
             checked={onlyAvailable}
@@ -94,7 +94,7 @@ export default function BooksPage() {
       {loading && <Loading />}
 
       {!loading && !error && (
-        <p className="text-sm text-slate-500" aria-live="polite">
+        <p className="text-sm text-muted" aria-live="polite">
           {visible.length === books.length
             ? `${books.length} ${books.length === 1 ? 'libro' : 'libros'}`
             : `${visible.length} de ${books.length} libros`}
@@ -102,22 +102,22 @@ export default function BooksPage() {
       )}
 
       {!loading && !error && visible.length === 0 ? (
-        <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
+        <p className="rounded-lg border border-line bg-surface p-4 text-sm text-muted">
           {onlyAvailable && books.length > 0
             ? 'Ninguno de estos libros tiene ejemplares disponibles.'
             : 'No hay libros que coincidan con la búsqueda.'}
         </p>
       ) : (
-        <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {visible.map((book) => (
             <li key={book.id}>
               <Link
                 to={`/libros/${book.id}`}
-                className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-slate-50"
+                className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-surface-alt"
               >
                 <div>
-                  <p className="font-medium text-slate-900">{book.title}</p>
-                  <p className="text-sm text-slate-500">{book.authors}</p>
+                  <p className="font-medium text-ink">{book.title}</p>
+                  <p className="text-sm text-muted">{book.authors}</p>
                 </div>
                 <Badge color={book.availableCopies > 0 ? 'green' : 'gray'}>
                   {book.availableCopies} disponibles

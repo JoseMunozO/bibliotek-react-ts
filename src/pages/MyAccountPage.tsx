@@ -5,7 +5,7 @@ import { useSession } from '../session'
 import EditMemberPage from './EditMemberPage'
 
 const chooseMember = (
-  <p className="text-slate-500">Elige quién eres en el selector de la cabecera para ver tu cuenta.</p>
+  <p className="text-muted">Elige quién eres en el selector de la cabecera para ver tu cuenta.</p>
 )
 
 /** Ruta /mi-cuenta: vista del rol Socio con su perfil, préstamos, multas y notificaciones */

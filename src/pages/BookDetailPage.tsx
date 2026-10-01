@@ -57,11 +57,11 @@ function BookDetail({ bookId }: { bookId: number }) {
       {!book && !error && <Loading />}
 
       {book && (
-        <article className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
+        <article className="space-y-4 rounded-lg border border-line bg-surface p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-semibold text-slate-900">{book.title}</h2>
-              <p className="text-slate-600">{splitList(book.authors).join(', ')}</p>
+              <h2 className="text-2xl font-semibold text-ink">{book.title}</h2>
+              <p className="text-ink-soft">{splitList(book.authors).join(', ')}</p>
             </div>
             <Badge color={book.availableCopies > 0 ? 'green' : 'gray'}>
               {book.availableCopies} de {book.totalCopies} disponibles
@@ -74,7 +74,7 @@ function BookDetail({ bookId }: { bookId: number }) {
             ))}
           </div>
 
-          {book.summary && <p className="leading-relaxed text-slate-700">{book.summary}</p>}
+          {book.summary && <p className="leading-relaxed text-ink-soft">{book.summary}</p>}
 
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Info label="ISBN" value={book.isbn} />
@@ -87,27 +87,27 @@ function BookDetail({ bookId }: { bookId: number }) {
 
       <section className="space-y-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">Reseñas ({reviews.length})</h2>
+          <h2 className="text-lg font-semibold text-ink">Reseñas ({reviews.length})</h2>
           {reviews.length > 0 && (
-            <span className="flex items-center gap-1 text-sm text-slate-600">
+            <span className="flex items-center gap-1 text-sm text-ink-soft">
               <Stars rating={average} /> {average.toFixed(1)}
             </span>
           )}
         </div>
 
         {reviews.length === 0 ? (
-          <p className="text-sm text-slate-500">Todavía no hay reseñas de este libro.</p>
+          <p className="text-sm text-muted">Todavía no hay reseñas de este libro.</p>
         ) : (
           <ul className="space-y-3">
             {reviews.map((review) => (
-              <li key={review.id} className="rounded-lg border border-slate-200 bg-white p-4">
+              <li key={review.id} className="rounded-lg border border-line bg-surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium text-slate-900">{review.memberName}</span>
-                  <span className="flex items-center gap-2 text-sm text-slate-500">
+                  <span className="font-medium text-ink">{review.memberName}</span>
+                  <span className="flex items-center gap-2 text-sm text-muted">
                     <Stars rating={review.rating} /> {review.reviewDate}
                   </span>
                 </div>
-                {review.comment && <p className="mt-2 text-sm text-slate-700">{review.comment}</p>}
+                {review.comment && <p className="mt-2 text-sm text-ink-soft">{review.comment}</p>}
               </li>
             ))}
           </ul>
@@ -121,9 +121,9 @@ function BookDetail({ bookId }: { bookId: number }) {
 
 function Info({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-3">
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="font-medium text-slate-900">{value}</dd>
+    <div className="rounded-lg bg-surface-alt p-3">
+      <dt className="text-xs text-muted">{label}</dt>
+      <dd className="font-medium text-ink">{value}</dd>
     </div>
   )
 }

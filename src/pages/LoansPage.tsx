@@ -72,11 +72,11 @@ export default function LoansPage() {
       <Alert type="success" message={success} />
 
       <section>
-        <h2 className="mb-2 font-medium text-slate-900">Préstamos activos ({loans.length})</h2>
+        <h2 className="mb-2 font-medium text-ink">Préstamos activos ({loans.length})</h2>
         {loans.length === 0 ? (
-          <p className="text-sm text-slate-500">No hay préstamos activos.</p>
+          <p className="text-sm text-muted">No hay préstamos activos.</p>
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {loans.map((loan) => (
               <LoanRow key={loan.id} loan={loan} onReturn={handleReturn} onExtend={handleExtend} />
             ))}
@@ -85,15 +85,15 @@ export default function LoansPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 font-medium text-slate-900">Vencidos ({overdue.length})</h2>
+        <h2 className="mb-2 font-medium text-ink">Vencidos ({overdue.length})</h2>
         {overdue.length === 0 ? (
-          <p className="text-sm text-slate-500">No hay préstamos vencidos.</p>
+          <p className="text-sm text-muted">No hay préstamos vencidos.</p>
         ) : (
-          <ul className="divide-y divide-slate-200 rounded-lg border border-red-200 bg-white text-sm">
+          <ul className="divide-y divide-line rounded-lg border border-red-200 bg-surface dark:border-red-500/40 text-sm">
             {overdue.map((o) => (
               <li key={o.loanId} className="flex flex-wrap justify-between gap-2 p-3">
-                <span className="font-medium text-slate-900">{o.bookTitle}</span>
-                <span className="text-slate-500">
+                <span className="font-medium text-ink">{o.bookTitle}</span>
+                <span className="text-muted">
                   {o.memberName} ({o.memberEmail}) · vencido el {o.dueDate}
                 </span>
               </li>
@@ -118,8 +118,8 @@ function LoanRow({ loan, onReturn, onExtend }: LoanRowProps) {
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 p-3">
       <div>
-        <p className="font-medium text-slate-900">{loan.bookTitle}</p>
-        <p className="text-sm text-slate-500">
+        <p className="font-medium text-ink">{loan.bookTitle}</p>
+        <p className="text-sm text-muted">
           {loan.memberName ?? `Socio #${loan.memberId}`} · prestado el {loan.loanDate}
         </p>
       </div>

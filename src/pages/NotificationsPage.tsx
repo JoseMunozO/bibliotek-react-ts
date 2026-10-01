@@ -21,7 +21,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
-      <label className="flex flex-wrap items-center gap-3 text-sm text-slate-700">
+      <label className="flex flex-wrap items-center gap-3 text-sm text-ink-soft">
         Socio
         <Select
           value={memberId ?? ''}
@@ -39,7 +39,7 @@ export default function NotificationsPage() {
       <Alert message={error} />
 
       {memberId === null ? (
-        <p className="text-slate-500">Selecciona un socio para ver sus notificaciones.</p>
+        <p className="text-muted">Selecciona un socio para ver sus notificaciones.</p>
       ) : (
         <MemberNotifications key={memberId} memberId={memberId} canSend />
       )}

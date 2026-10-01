@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+/* dark: se activa con la clase .dark en <html> (la pone src/theme.ts) en vez de con la media query */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Colores semánticos: los componentes usan bg-surface, text-ink, border-line...
+ * y cada tema define su valor. Así el modo oscuro no necesita un dark: en cada clase.
+ */
+@theme {
+  --color-page: var(--color-slate-50); /* fondo de la aplicación */
+  --color-surface: var(--color-white); /* tarjetas, listas, formularios, cabecera */
+  --color-surface-alt: var(--color-slate-50); /* hover y recuadros dentro de una tarjeta */
+  --color-ink: var(--color-slate-900); /* texto principal */
+  --color-ink-soft: var(--color-slate-700); /* texto secundario y etiquetas */
+  --color-muted: var(--color-slate-500); /* texto de apoyo */
+  --color-faint: var(--color-slate-300); /* decorativo: estrellas vacías, 404 */
+  --color-line: var(--color-slate-200); /* bordes y separadores */
+  --color-line-strong: var(--color-slate-300); /* bordes de campos */
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark; /* controles nativos (select, checkbox, scrollbars) en oscuro */
+  --color-page: var(--color-slate-950);
+  --color-surface: var(--color-slate-900);
+  --color-surface-alt: var(--color-slate-800);
+  --color-ink: var(--color-slate-100);
+  --color-ink-soft: var(--color-slate-300);
+  --color-muted: var(--color-slate-400);
+  --color-faint: var(--color-slate-600);
+  --color-line: var(--color-slate-800);
+  --color-line-strong: var(--color-slate-700);
+}
+
+body {
+  background-color: var(--color-page);
+  color: var(--color-ink);
+}

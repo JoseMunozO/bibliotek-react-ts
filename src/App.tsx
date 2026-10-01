@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { Navigate, NavLink, Route, Routes } from 'react-router'
 import SessionBar from './components/SessionBar'
+import ThemeSelect from './components/ThemeSelect'
 import BookDetailPage from './pages/BookDetailPage'
 import BooksPage from './pages/BooksPage'
 import LoansPage from './pages/LoansPage'
@@ -30,10 +31,10 @@ function App() {
   const only = (allowed: boolean, element: ReactElement) => (allowed ? element : <Navigate to="/libros" replace />)
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-page">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
-          <h1 className="text-xl font-semibold text-slate-900">Bibliotek</h1>
+          <h1 className="text-xl font-semibold text-ink">Bibliotek</h1>
           <nav className="flex flex-wrap gap-1">
             {tabs.map((tab) => (
               <NavLink
@@ -41,7 +42,9 @@ function App() {
                 to={tab.to}
                 className={({ isActive }) =>
                   `rounded-lg px-3 py-1.5 text-sm font-medium ${
-                    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'
+                    isActive
+                      ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300'
+                      : 'text-ink-soft hover:bg-surface-alt'
                   }`
                 }
               >
@@ -49,8 +52,9 @@ function App() {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto">
+          <div className="ml-auto flex flex-wrap items-center gap-2">
             <SessionBar />
+            <ThemeSelect />
           </div>
         </div>
       </header>

@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from 'react'
 
 const variants = {
   primary: 'bg-indigo-600 text-white hover:bg-indigo-700',
-  secondary: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
+  secondary: 'border border-line-strong bg-surface text-ink-soft hover:bg-surface-alt',
   danger: 'bg-red-600 text-white hover:bg-red-700',
 }
 

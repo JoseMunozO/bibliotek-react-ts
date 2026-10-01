@@ -54,8 +54,8 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
       {!form && <Alert message={error} />}
 
       {form && (
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-slate-900">Editar socio</h2>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-line bg-surface p-5">
+          <h2 className="text-lg font-semibold text-ink">Editar socio</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nombre">
@@ -92,7 +92,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
               onChange={(e) => setForm({ ...form, membershipType: e.target.value as MembershipType })}
               disabled={!can.changeMembershipType}
               title={can.changeMembershipType ? undefined : 'Solo un administrador puede cambiarlo'}
-              className="w-full disabled:bg-slate-100 disabled:text-slate-500"
+              className="w-full disabled:bg-surface-alt disabled:text-muted"
             >
               {(Object.keys(membershipTypeLabel) as MembershipType[]).map((type) => (
                 <option key={type} value={type}>
@@ -121,7 +121,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block space-y-1">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className="text-sm font-medium text-ink-soft">{label}</span>
       {children}
     </label>
   )

@@ -31,8 +31,8 @@ export default function MostBorrowedPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-slate-900">Libros más prestados</h2>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
+        <h2 className="text-lg font-semibold text-ink">Libros más prestados</h2>
+        <label className="flex items-center gap-2 text-sm text-ink-soft">
           Mostrar
           <Select value={limit} onChange={(e) => setSearchParams({ top: e.target.value }, { replace: true })}>
             {limits.map((l) => (
@@ -47,28 +47,28 @@ export default function MostBorrowedPage() {
       <Alert message={error} />
       {loading && <Loading />}
       {!loading && !error && stats.length === 0 && (
-        <p className="text-sm text-slate-500">Todavía no hay préstamos registrados.</p>
+        <p className="text-sm text-muted">Todavía no hay préstamos registrados.</p>
       )}
 
       {stats.length > 0 && (
-        <ol className="rounded-lg border border-slate-200 bg-white p-2">
+        <ol className="rounded-lg border border-line bg-surface p-2">
           {stats.map((s, index) => (
             <li key={s.bookId}>
               <Link
                 to={`/libros/${s.bookId}`}
                 title={`${s.title}: ${s.loanCount} ${s.loanCount === 1 ? 'préstamo' : 'préstamos'}`}
-                className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-2 rounded-md px-2 py-2 text-left hover:bg-slate-50 sm:grid-cols-[2rem_minmax(0,16rem)_minmax(0,1fr)]"
+                className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-2 rounded-md px-2 py-2 text-left hover:bg-surface-alt sm:grid-cols-[2rem_minmax(0,16rem)_minmax(0,1fr)]"
               >
-                <span className="text-sm text-slate-400 tabular-nums">{index + 1}</span>
-                <span className="truncate text-sm font-medium text-slate-900">{s.title}</span>
+                <span className="text-sm text-muted tabular-nums">{index + 1}</span>
+                <span className="truncate text-sm font-medium text-ink">{s.title}</span>
                 <span className="col-start-2 mt-1 flex items-center gap-2 sm:col-start-3 sm:mt-0">
                   <span className="h-2.5 flex-1">
                     <span
-                      className="block h-full rounded-r bg-indigo-500"
+                      className="block h-full rounded-r bg-indigo-500 dark:bg-indigo-400"
                       style={{ width: `${(s.loanCount / max) * 100}%` }}
                     />
                   </span>
-                  <span className="w-8 text-right text-sm text-slate-600 tabular-nums">{s.loanCount}</span>
+                  <span className="w-8 text-right text-sm text-ink-soft tabular-nums">{s.loanCount}</span>
                 </span>
               </Link>
             </li>

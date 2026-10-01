@@ -52,11 +52,11 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
   if (!profile) return error ? <Alert message={error} /> : <Loading />
 
   return (
-    <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-4">
+    <div className="space-y-5 rounded-lg border border-line bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">{profile.fullName}</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-ink">{profile.fullName}</h2>
+          <p className="text-sm text-muted">
             {profile.email} · socio desde {profile.membershipDate} · {membershipTypeLabel[profile.membershipType]}
           </p>
         </div>
@@ -85,15 +85,15 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
       </dl>
 
       <section>
-        <h3 className="mb-2 font-medium text-slate-900">Préstamos</h3>
+        <h3 className="mb-2 font-medium text-ink">Préstamos</h3>
         {loans.length === 0 ? (
-          <p className="text-sm text-slate-500">Sin préstamos.</p>
+          <p className="text-sm text-muted">Sin préstamos.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 text-sm">
+          <ul className="divide-y divide-line text-sm">
             {loans.map((loan) => (
               <li key={loan.id} className="flex justify-between gap-2 py-2">
                 <span>{loan.bookTitle}</span>
-                <span className="text-slate-500">
+                <span className="text-muted">
                   {loan.returnDate ? (
                     `Devuelto ${loan.returnDate}`
                   ) : loan.dueDate < today() ? (
@@ -109,16 +109,16 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
       </section>
 
       <section>
-        <h3 className="mb-2 font-medium text-slate-900">Multas</h3>
+        <h3 className="mb-2 font-medium text-ink">Multas</h3>
         {fines.length === 0 ? (
-          <p className="text-sm text-slate-500">Sin multas.</p>
+          <p className="text-sm text-muted">Sin multas.</p>
         ) : (
-          <ul className="divide-y divide-slate-100 text-sm">
+          <ul className="divide-y divide-line text-sm">
             {fines.map((fine) => (
               <li key={fine.id} className="flex items-center justify-between gap-2 py-2">
                 <span>
                   {fine.bookTitle} · {formatAmount(fine.amount)}
-                  <span className="text-slate-500"> ({fine.issuedDate})</span>
+                  <span className="text-muted"> ({fine.issuedDate})</span>
                 </span>
                 {fine.status === 'pending' ? (
                   can.payFines ? (
@@ -140,9 +140,9 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-3">
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="text-lg font-semibold text-slate-900">{value}</dd>
+    <div className="rounded-lg bg-surface-alt p-3">
+      <dt className="text-xs text-muted">{label}</dt>
+      <dd className="text-lg font-semibold text-ink">{value}</dd>
     </div>
   )
 }
