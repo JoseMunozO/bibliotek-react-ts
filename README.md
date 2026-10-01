@@ -1,5 +1,7 @@
 # Bibliotek – frontend
 
+[![CI](https://github.com/JoseMunozO/bibliotek-react-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/JoseMunozO/bibliotek-react-ts/actions/workflows/ci.yml)
+
 Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScript och Tailwind CSS. Applikationen pratar med REST-API:t [bibliotek-api](https://github.com/JoseMunozO/bibliotek-api) (Java 25 + Spring Boot + MySQL).
 
 ## Funktioner
@@ -62,6 +64,8 @@ npm run dev
 | `npm run build` | Typkontrollerar (`tsc -b`) och bygger till `dist/` |
 | `npm run preview` | Förhandsgranskar produktionsbygget lokalt |
 | `npm run lint` | Kör ESLint |
+
+Vid varje push och pull request till `main` kör GitHub Actions `npm run lint` och `npm run build` med Node 22 och 24.
 
 ## Koppling till API:t
 
