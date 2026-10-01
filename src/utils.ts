@@ -66,3 +66,27 @@ export function sortBooks<T extends { title: string; authors: string; availableC
   }
   return books.toSorted(compare[order])
 }
+
+/** Trocea `items` en páginas de `size`; una página fuera de rango se ajusta a la más cercana */
+export function paginate<T>(items: T[], page: number, size: number) {
+  const totalPages = Math.max(1, Math.ceil(items.length / size))
+  const current = Math.min(Math.max(1, Math.trunc(page) || 1), totalPages)
+  const start = (current - 1) * size
+  return { items: items.slice(start, start + size), page: current, totalPages, start }
+}
+
+/**
+ * Números de página a mostrar: siempre la primera, la última y las vecinas de la actual,
+ * con '…' donde se salta alguna. Ej.: (6, 12) → [1, '…', 5, 6, 7, '…', 12]
+ */
+export function pageWindow(current: number, total: number): (number | '…')[] {
+  const pages = [...new Set([1, current - 1, current, current + 1, total])]
+    .filter((p) => p >= 1 && p <= total)
+    .sort((a, b) => a - b)
+  return pages.flatMap((p, i) => {
+    const gap = p - (pages[i - 1] ?? p)
+    // Si solo falta un número, se muestra en vez de poner '…'
+    if (gap === 2) return [p - 1, p]
+    return gap > 2 ? ['…' as const, p] : [p]
+  })
+}

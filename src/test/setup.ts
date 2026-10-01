@@ -20,6 +20,9 @@ Object.defineProperty(window, 'matchMedia', {
     }) as MediaQueryList,
 })
 
+// jsdom tampoco implementa scrollTo (la paginación vuelve arriba al cambiar de página)
+Object.defineProperty(window, 'scrollTo', { writable: true, value: () => {} })
+
 // Sin `globals: true` Testing Library no limpia el DOM sola entre tests
 afterEach(() => {
   cleanup()

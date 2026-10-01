@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseId } from './navigation'
 import { permissionsFor } from './session'
-import { formatAmount, notificationTypeLabel, sortBooks, today } from './utils'
+import { formatAmount, notificationTypeLabel, pageWindow, paginate, sortBooks, today } from './utils'
 
 describe('today', () => {
   afterEach(() => {
@@ -100,5 +100,39 @@ describe('sortBooks', () => {
     const copy = [...books]
     sortBooks(books, 'autor')
     expect(books).toEqual(copy)
+  })
+})
+
+describe('paginate', () => {
+  const items = Array.from({ length: 45 }, (_, i) => i + 1)
+
+  it('devuelve la página pedida y el total de páginas', () => {
+    expect(paginate(items, 2, 20)).toEqual({ items: items.slice(20, 40), page: 2, totalPages: 3, start: 20 })
+    expect(paginate(items, 3, 20).items).toEqual([41, 42, 43, 44, 45])
+  })
+
+  it('ajusta páginas fuera de rango o no válidas', () => {
+    expect(paginate(items, 99, 20).page).toBe(3)
+    expect(paginate(items, 0, 20).page).toBe(1)
+    expect(paginate(items, NaN, 20).page).toBe(1)
+    expect(paginate(items, 2.7, 20).page).toBe(2)
+  })
+
+  it('una lista vacía tiene una página vacía', () => {
+    expect(paginate([], 1, 20)).toEqual({ items: [], page: 1, totalPages: 1, start: 0 })
+  })
+})
+
+describe('pageWindow', () => {
+  it.each<[number, number, (number | '…')[]]>([
+    [1, 1, [1]],
+    [1, 3, [1, 2, 3]],
+    [1, 10, [1, 2, '…', 10]],
+    [6, 12, [1, '…', 5, 6, 7, '…', 12]],
+    [3, 10, [1, 2, 3, 4, '…', 10]], // entre 1 y 2 no se salta nada
+    [4, 10, [1, 2, 3, 4, 5, '…', 10]], // solo falta el 2: se muestra en vez de '…'
+    [10, 10, [1, '…', 9, 10]],
+  ])('página %i de %i → %o', (current, total, expected) => {
+    expect(pageWindow(current, total)).toEqual(expected)
   })
 })

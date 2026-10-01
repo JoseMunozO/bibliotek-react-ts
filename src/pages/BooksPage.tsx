@@ -5,12 +5,16 @@ import Alert from '../components/Alert'
 import Loading from '../components/Loading'
 import Badge from '../components/Badge'
 import { Input, Select } from '../components/Input'
-import { bookOrderLabel, isBookOrder, sortBooks, type BookOrder } from '../utils'
+import Pagination from '../components/Pagination'
+import { bookOrderLabel, isBookOrder, paginate, sortBooks, type BookOrder } from '../utils'
+
+const PAGE_SIZE = 20
 
 /**
  * La API no permite combinar search, available y sort, así que la búsqueda se hace
  * en el servidor y el filtro y el orden en el navegador (GET /books no pagina).
- * Todo vive en la URL (?q=&disponibles=1&orden=) para conservarlo al volver del detalle.
+ * La paginación también es local. Todo vive en la URL (?q=&disponibles=1&orden=&pagina=)
+ * para conservarlo al volver del detalle.
  */
 export default function BooksPage() {
   const [books, setBooks] = useState<BookDTO[]>([])
@@ -22,17 +26,29 @@ export default function BooksPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  /** Cambia un parámetro de la URL conservando los demás */
+  /** Cambia un filtro de la URL conservando los demás y vuelve a la primera página */
   function setParam(key: string, value: string | null) {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
         if (value) next.set(key, value)
         else next.delete(key)
+        next.delete('pagina')
         return next
       },
       { replace: true },
     )
+  }
+
+  /** Cada página es una entrada del historial: "atrás" vuelve a la anterior */
+  function goToPage(page: number) {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (page > 1) next.set('pagina', String(page))
+      else next.delete('pagina')
+      return next
+    })
+    window.scrollTo({ top: 0 })
   }
 
   useEffect(() => {
@@ -57,6 +73,11 @@ export default function BooksPage() {
     () => sortBooks(onlyAvailable ? books.filter((b) => b.availableCopies > 0) : books, order),
     [books, onlyAvailable, order],
   )
+  const { items: pageBooks, page, totalPages, start } = paginate(visible, Number(searchParams.get('pagina')), PAGE_SIZE)
+  const total =
+    visible.length === books.length
+      ? `${books.length} ${books.length === 1 ? 'libro' : 'libros'}`
+      : `${visible.length} de ${books.length} libros`
 
   return (
     <section className="space-y-4">
@@ -95,9 +116,7 @@ export default function BooksPage() {
 
       {!loading && !error && (
         <p className="text-sm text-muted" aria-live="polite">
-          {visible.length === books.length
-            ? `${books.length} ${books.length === 1 ? 'libro' : 'libros'}`
-            : `${visible.length} de ${books.length} libros`}
+          {totalPages > 1 ? `${start + 1}–${start + pageBooks.length} · ${total}` : total}
         </p>
       )}
 
@@ -109,7 +128,7 @@ export default function BooksPage() {
         </p>
       ) : (
         <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
-          {visible.map((book) => (
+          {pageBooks.map((book) => (
             <li key={book.id}>
               <Link
                 to={`/libros/${book.id}`}
@@ -120,13 +139,15 @@ export default function BooksPage() {
                   <p className="text-sm text-muted">{book.authors}</p>
                 </div>
                 <Badge color={book.availableCopies > 0 ? 'green' : 'gray'}>
-                  {book.availableCopies} disponibles
+                  {book.availableCopies} {book.availableCopies === 1 ? 'disponible' : 'disponibles'}
                 </Badge>
               </Link>
             </li>
           ))}
         </ul>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
     </section>
   )
 }

@@ -111,4 +111,60 @@ describe('BooksPage', () => {
     await user.click(await screen.findByLabelText('Solo disponibles'))
     expect(screen.getByText('Ninguno de estos libros tiene ejemplares disponibles.')).toBeInTheDocument()
   })
+
+  describe('paginación', () => {
+    // 45 libros "Libro 01"…"Libro 45": 3 páginas de 20 ordenadas por título
+    const many = Array.from({ length: 45 }, (_, i) =>
+      book(i + 1, `Libro ${String(i + 1).padStart(2, '0')}`, 'Autor', i % 2),
+    )
+    const page = () => screen.getByRole('button', { current: 'page' }).textContent
+
+    it('muestra 20 libros por página y navega con la URL', async () => {
+      const user = userEvent.setup()
+      mockFetch(() => json(many))
+      renderApp('/libros')
+
+      expect(await screen.findByText('1–20 · 45 libros')).toBeInTheDocument()
+      expect(titles()).toHaveLength(20)
+      expect(titles()[0]).toBe('Libro 01')
+      expect(screen.getByRole('button', { name: 'Página anterior' })).toBeDisabled()
+
+      await user.click(screen.getByRole('button', { name: 'Página siguiente' }))
+      expect(screen.getByTestId('location')).toHaveTextContent('/libros?pagina=2')
+      expect(titles()[0]).toBe('Libro 21')
+      expect(page()).toBe('2')
+
+      await user.click(screen.getByRole('button', { name: 'Página 3' }))
+      expect(screen.getByText('41–45 · 45 libros')).toBeInTheDocument()
+      expect(titles()).toHaveLength(5)
+      expect(screen.getByRole('button', { name: 'Página siguiente' })).toBeDisabled()
+    })
+
+    it('vuelve a la primera página al cambiar filtro u orden', async () => {
+      const user = userEvent.setup()
+      mockFetch(() => json(many))
+      renderApp('/libros?pagina=3')
+
+      await screen.findByText('41–45 · 45 libros')
+      await user.click(screen.getByLabelText('Solo disponibles'))
+
+      // 22 disponibles (los pares): 2 páginas, y se vuelve a la 1
+      expect(screen.getByText('1–20 · 22 de 45 libros')).toBeInTheDocument()
+      expect(screen.getByTestId('location')).toHaveTextContent('/libros?disponibles=1')
+      expect(page()).toBe('1')
+    })
+
+    it('ajusta una página fuera de rango y oculta la paginación si sobra', async () => {
+      mockFetch(() => json(many))
+      const { unmount } = renderApp('/libros?pagina=99')
+      expect(await screen.findByText('41–45 · 45 libros')).toBeInTheDocument()
+      unmount()
+
+      mockFetch(() => json(many.slice(0, 5)))
+      renderApp('/libros')
+      await screen.findByText('5 libros')
+      expect(screen.queryByRole('navigation', { name: 'Paginación' })).not.toBeInTheDocument()
+    })
+  })
 })
+

@@ -6,7 +6,7 @@ Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScrip
 
 ## Funktioner
 
-- **Böcker** – lista med sökning på titel eller författare, sortering (titel, författare eller antal lediga exemplar) och filter för tillgängliga böcker, och en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
+- **Böcker** – lista med sökning på titel eller författare, sortering (titel, författare eller antal lediga exemplar) filter för tillgängliga böcker och sidindelning (20 per sida), och en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
 - **Recensioner** – alla recensioner av en bok med genomsnittligt betyg, samt ett formulär för att skriva en ny (1–5 stjärnor). Endast medlemmar som har lämnat tillbaka boken kan recensera den.
 - **Mest utlånade** – topplista med stapeldiagram (topp 5, 10, 20 eller 50).
 - **Medlemmar** – registrera nya medlemmar, se en medlems profil med lån, böter och statistik, redigera uppgifter och medlemskapstyp, betala böter och stänga av medlemmar.
@@ -95,7 +95,7 @@ Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsar
 
 | Adress | Vy |
 |---|---|
-| `/libros` | Böcker (sökning, sortering och filter sparas i `?q=`, `?orden=` och `?disponibles=1`) |
+| `/libros` | Böcker (sökning, sortering, filter och sida sparas i `?q=`, `?orden=`, `?disponibles=1` och `?pagina=`) |
 | `/libros/:id` | Bokens detaljer och recensioner |
 | `/mas-prestados` | Mest utlånade (`?top=5\|10\|20\|50`) |
 | `/mi-cuenta` | Mitt konto (rollen Medlem) |
