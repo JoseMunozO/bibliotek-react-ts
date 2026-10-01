@@ -114,7 +114,20 @@ Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsar
 
 Om rollen inte har tillgång till en adress skickas man till `/libros`.
 
-> **Driftsättning:** eftersom det är en SPA måste webbservern skicka `index.html` för alla okända sökvägar (t.ex. en *rewrite* till `/index.html` på Netlify eller Vercel). Under utveckling sköter Vite det automatiskt.
+> Eftersom det är en SPA måste webbservern skicka `index.html` för alla okända sökvägar. Under utveckling sköter Vite det, och på Vercel gör `vercel.json` det (se [Driftsättning](#driftsättning)).
+
+## Driftsättning
+
+Frontend är förberett för [Vercel](https://vercel.com) och backend körs separat (t.ex. på Railway med en hanterad MySQL-databas).
+
+1. Driftsätt först [bibliotek-api](https://github.com/JoseMunozO/bibliotek-api) och notera dess publika adress.
+2. Importera det här repot i Vercel. Ramverket (Vite), byggkommandot och `dist/` läses från `vercel.json`, som också skickar alla sökvägar till `index.html`.
+3. Lägg till miljövariabeln **`VITE_API_URL`** med backendens adress, t.ex. `https://bibliotek-api.example.app/api` (se `.env.example`). Den byggs in i appen, så efter en ändring måste projektet byggas om.
+4. Tillåt Vercel-domänen i backendens CORS-inställningar, eftersom webbläsaren anropar API:t direkt från en annan domän.
+
+Node 22.22 eller senare krävs (`engines` i `package.json`), vilket Vercel respekterar.
+
+> **Obs:** API:t har ingen autentisering och rollerna styr bara gränssnittet. I en publik demo kan vem som helst ändra data, så använd en separat demodatabas som kan återställas.
 
 ## Projektstruktur
 
