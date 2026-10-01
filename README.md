@@ -35,6 +35,7 @@ Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna
 | Byggverktyg | Vite 8 |
 | Styling | Tailwind CSS 4 (`@tailwindcss/vite`) |
 | Kodkvalitet | ESLint med `typescript-eslint` och `react-hooks` |
+| Tester | Vitest, Testing Library och jsdom |
 
 Utöver React Router finns inga andra körtidsberoenden: API-klienten bygger på `fetch`.
 
@@ -64,8 +65,11 @@ npm run dev
 | `npm run build` | Typkontrollerar (`tsc -b`) och bygger till `dist/` |
 | `npm run preview` | Förhandsgranskar produktionsbygget lokalt |
 | `npm run lint` | Kör ESLint |
+| `npm test` | Kör alla tester en gång |
+| `npm run test:watch` | Kör testerna och kör om dem vid ändringar |
+| `npm run coverage` | Kör testerna med kodtäckningsrapport i `coverage/` |
 
-Vid varje push och pull request till `main` kör GitHub Actions `npm run lint` och `npm run build` med Node 22 och 24.
+Vid varje push och pull request till `main` kör GitHub Actions `npm run lint`, `npm test` och `npm run build` med Node 22 och 24.
 
 ## Koppling till API:t
 
@@ -133,6 +137,16 @@ try {
 ```
 
 Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`. Gränssnittet är på spanska, liksom felmeddelandena från backend.
+
+## Tester
+
+Testerna ligger bredvid koden de testar (`*.test.ts` / `*.test.tsx`) och körs i jsdom. `fetch` mockas, så backend behöver inte vara igång.
+
+- **API-klienten** – URL:er, metoder och request-kroppar för varje endpoint, felhantering (`ApiError`, nätverksfel, 502 från proxyn).
+- **Logik** – behörigheter per roll, tolkning av id:n i URL:en och hjälpfunktioner.
+- **Komponenter och sidor** – routing och omdirigering per roll, sökning i URL:en (även att gamla svar ignoreras), lån (förlängning, återlämning med böter), medlemsprofil och recensionsformulär.
+
+Hjälpfunktionerna finns i `src/test/`: `mockFetch` och `json` för att simulera API:t, `renderApp` för att rendera hela appen på en viss adress och med en viss roll, och `renderWithSession` för en enskild komponent.
 
 ## Licens
 

@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Lint y build (Node ${{ matrix.node }})
+    name: Lint, tests y build (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,4 +33,5 @@ jobs:
 
       - run: npm ci
       - run: npm run lint
+      - run: npm test
       - run: npm run build
