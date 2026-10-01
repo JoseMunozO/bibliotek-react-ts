@@ -3,15 +3,18 @@ import { getErrorMessage, membersApi, type MembershipType, type UpdateMemberRequ
 import Alert from '../components/Alert'
 import Button from '../components/Button'
 import { Input, Select } from '../components/Input'
+import { useSession } from '../session'
 import { membershipTypeLabel } from '../utils'
 
 interface Props {
   memberId: number
   onBack: () => void
   onSaved: () => void
+  backLabel?: string
 }
 
-export default function EditMemberPage({ memberId, onBack, onSaved }: Props) {
+export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 'Volver a socios' }: Props) {
+  const { can } = useSession()
   const [form, setForm] = useState<UpdateMemberRequest | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -41,7 +44,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved }: Props) {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <Button variant="secondary" onClick={onBack}>
-        ← Volver a socios
+        ← {backLabel}
       </Button>
 
       {!form && !error && <p className="text-slate-500">Cargando...</p>}
@@ -84,7 +87,9 @@ export default function EditMemberPage({ memberId, onBack, onSaved }: Props) {
             <Select
               value={form.membershipType}
               onChange={(e) => setForm({ ...form, membershipType: e.target.value as MembershipType })}
-              className="w-full"
+              disabled={!can.changeMembershipType}
+              title={can.changeMembershipType ? undefined : 'Solo un administrador puede cambiarlo'}
+              className="w-full disabled:bg-slate-100 disabled:text-slate-500"
             >
               {(Object.keys(membershipTypeLabel) as MembershipType[]).map((type) => (
                 <option key={type} value={type}>

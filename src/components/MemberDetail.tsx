@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getErrorMessage, membersApi, type FineDTO, type LoanDTO, type MemberProfileDTO } from '../api'
+import { useSession } from '../session'
 import { formatAmount, memberStatusColor, memberStatusLabel, membershipTypeLabel, today } from '../utils'
 import Alert from './Alert'
 import Badge from './Badge'
@@ -9,10 +10,12 @@ interface Props {
   memberId: number
   /** Se llama cuando cambia algo del socio (p. ej. su estado) */
   onChange: () => void
-  onEdit: () => void
+  /** Si se omite, no se muestra el botón Editar */
+  onEdit?: () => void
 }
 
 export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
+  const { can } = useSession()
   const [profile, setProfile] = useState<MemberProfileDTO | null>(null)
   const [loans, setLoans] = useState<LoanDTO[]>([])
   const [fines, setFines] = useState<FineDTO[]>([])
@@ -56,10 +59,12 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
         </div>
         <div className="flex items-center gap-2">
           <Badge color={memberStatusColor[profile.status]}>{memberStatusLabel[profile.status]}</Badge>
-          <Button variant="secondary" onClick={onEdit}>
-            Editar
-          </Button>
-          {profile.status === 'active' && (
+          {onEdit && (
+            <Button variant="secondary" onClick={onEdit}>
+              Editar
+            </Button>
+          )}
+          {can.manageMembers && profile.status === 'active' && (
             <Button variant="danger" onClick={() => run(() => membersApi.suspend(memberId))}>
               Suspender
             </Button>
@@ -113,7 +118,11 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
                   <span className="text-slate-500"> ({fine.issuedDate})</span>
                 </span>
                 {fine.status === 'pending' ? (
-                  <Button onClick={() => run(() => membersApi.payFine(memberId, fine.id))}>Pagar</Button>
+                  can.payFines ? (
+                    <Button onClick={() => run(() => membersApi.payFine(memberId, fine.id))}>Pagar</Button>
+                  ) : (
+                    <Badge color="amber">Pendiente</Badge>
+                  )
                 ) : (
                   <Badge color="green">Pagada {fine.paidDate}</Badge>
                 )}

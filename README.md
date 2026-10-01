@@ -11,7 +11,17 @@ Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScrip
 - **Lån** – nya lån (14 dagars lånetid), förlängning, återlämning med automatisk förseningsavgift och en lista över försenade lån.
 - **Aviseringar** – en medlems aviseringar med filter för olästa, markera som läst och skicka nya aviseringar.
 
-Det finns ingen inloggning: rollerna simuleras genom att man väljer vilken medlem man arbetar med.
+### Roller
+
+Det finns ingen inloggning. I stället väljer man en roll i sidhuvudet, precis som i bibliotekets ursprungliga konsolprogram:
+
+| Roll | Kan |
+|---|---|
+| **Medlem** (*Socio*) | Bläddra bland böcker, recensera som sig själv och se sitt konto: profil, lån, böter och aviseringar. Kan redigera sina uppgifter men inte sin medlemskapstyp. |
+| **Bibliotekarie** (*Bibliotecario*) | Allt ovan plus hantera lån, ta betalt för böter, se medlemmar och skicka aviseringar. |
+| **Administratör** (*Administrador*) | Allt ovan plus registrera, redigera och stänga av medlemmar samt ändra medlemskapstyp. |
+
+Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna styr bara gränssnittet – API:t har ingen autentisering.
 
 ## Teknik
 
@@ -72,7 +82,8 @@ src/
 │   └── index.ts       # booksApi, membersApi, loansApi, notificationsApi
 ├── components/        # Återanvändbara komponenter (Button, Input, Badge, Alert, Stars …)
 │                      # och formulär (NewMemberForm, NewLoanForm, NewReviewForm …)
-├── pages/             # En sida per vy: böcker, mest utlånade, medlemmar, lån, aviseringar
+├── pages/             # En sida per vy: böcker, mest utlånade, mitt konto, medlemmar, lån, aviseringar
+├── session.ts         # Simulerade roller och behörigheter (useSession)
 ├── utils.ts           # Datum, belopp och etiketter för statusar
 ├── App.tsx            # Layout med navigeringsflikar
 └── index.css          # Endast @import "tailwindcss"

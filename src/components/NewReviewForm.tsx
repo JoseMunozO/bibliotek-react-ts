@@ -4,6 +4,7 @@ import Alert from './Alert'
 import Button from './Button'
 import { Select } from './Input'
 import Stars from './Stars'
+import { useSession } from '../session'
 
 interface Props {
   bookId: number
@@ -11,8 +12,11 @@ interface Props {
 }
 
 export default function NewReviewForm({ bookId, onCreated }: Props) {
+  const session = useSession()
   const [members, setMembers] = useState<MemberDTO[]>([])
-  const [memberId, setMemberId] = useState('')
+  const [selectedMemberId, setSelectedMemberId] = useState('')
+  // El rol Socio siempre reseña como el socio elegido en la cabecera
+  const memberId = session.can.reviewAsAnyMember ? selectedMemberId : String(session.memberId ?? '')
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -20,11 +24,12 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    if (!session.can.reviewAsAnyMember) return
     membersApi
       .list()
       .then(setMembers)
       .catch((e) => setError(getErrorMessage(e)))
-  }, [])
+  }, [session.can.reviewAsAnyMember])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -49,19 +54,28 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
     }
   }
 
+  if (!memberId && !session.can.reviewAsAnyMember)
+    return (
+      <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
+        Elige quién eres en la cabecera para escribir una reseña.
+      </p>
+    )
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
       <h3 className="font-medium text-slate-900">Escribir una reseña</h3>
       <p className="text-xs text-slate-500">Solo pueden opinar los socios que ya han devuelto este libro.</p>
       <div className="flex flex-wrap items-center gap-3">
-        <Select required value={memberId} onChange={(e) => setMemberId(e.target.value)}>
-          <option value="">Socio...</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.fullName}
-            </option>
-          ))}
-        </Select>
+        {session.can.reviewAsAnyMember && (
+          <Select required value={selectedMemberId} onChange={(e) => setSelectedMemberId(e.target.value)}>
+            <option value="">Socio...</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.fullName}
+              </option>
+            ))}
+          </Select>
+        )}
         <Stars rating={rating} onChange={setRating} />
       </div>
       <textarea

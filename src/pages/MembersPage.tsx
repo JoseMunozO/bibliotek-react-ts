@@ -5,9 +5,11 @@ import Badge from '../components/Badge'
 import MemberDetail from '../components/MemberDetail'
 import NewMemberForm from '../components/NewMemberForm'
 import EditMemberPage from './EditMemberPage'
+import { useSession } from '../session'
 import { memberStatusColor, memberStatusLabel } from '../utils'
 
 export default function MembersPage() {
+  const { can } = useSession()
   const [members, setMembers] = useState<MemberDTO[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -41,12 +43,14 @@ export default function MembersPage() {
 
   return (
     <div className="space-y-6">
-      <NewMemberForm
-        onCreated={(member) => {
-          loadMembers()
-          setSelectedId(member.id)
-        }}
-      />
+      {can.manageMembers && (
+        <NewMemberForm
+          onCreated={(member) => {
+            loadMembers()
+            setSelectedId(member.id)
+          }}
+        />
+      )}
 
       {error && <Alert>{error}</Alert>}
 
@@ -77,7 +81,7 @@ export default function MembersPage() {
             key={selectedId}
             memberId={selectedId}
             onChange={loadMembers}
-            onEdit={() => setEditing(true)}
+            onEdit={can.manageMembers ? () => setEditing(true) : undefined}
           />
         )}
       </div>
