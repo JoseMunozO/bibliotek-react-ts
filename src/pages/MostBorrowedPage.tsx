@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { booksApi, getErrorMessage, type BookStatisticsDTO } from '../api'
 import Alert from '../components/Alert'
+import Loading from '../components/Loading'
 import { Select } from '../components/Input'
 
 const limits = [5, 10, 20, 50]
@@ -43,8 +44,8 @@ export default function MostBorrowedPage() {
         </label>
       </div>
 
-      {error && <Alert>{error}</Alert>}
-      {loading && <p className="text-slate-500">Cargando...</p>}
+      <Alert message={error} />
+      {loading && <Loading />}
       {!loading && !error && stats.length === 0 && (
         <p className="text-sm text-slate-500">Todavía no hay préstamos registrados.</p>
       )}

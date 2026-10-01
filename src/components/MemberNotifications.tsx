@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getErrorMessage, membersApi, notificationsApi, type NotificationDTO } from '../api'
 import { notificationTypeLabel } from '../utils'
 import Alert from './Alert'
+import Loading from './Loading'
 import Badge from './Badge'
 import Button from './Button'
 import NewNotificationForm from './NewNotificationForm'
@@ -67,8 +68,8 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
         </div>
       </div>
 
-      {error && <Alert>{error}</Alert>}
-      {loading && <p className="text-slate-500">Cargando...</p>}
+      <Alert message={error} />
+      {loading && <Loading />}
 
       {!loading && visible.length === 0 ? (
         <p className="text-sm text-slate-500">

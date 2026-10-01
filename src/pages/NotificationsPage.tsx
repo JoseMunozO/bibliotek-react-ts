@@ -36,7 +36,7 @@ export default function NotificationsPage() {
         </Select>
       </label>
 
-      {error && <Alert>{error}</Alert>}
+      <Alert message={error} />
 
       {memberId === null ? (
         <p className="text-slate-500">Selecciona un socio para ver sus notificaciones.</p>

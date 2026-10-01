@@ -3,6 +3,7 @@ import { getErrorMessage, membersApi, type FineDTO, type LoanDTO, type MemberPro
 import { useSession } from '../session'
 import { formatAmount, memberStatusColor, memberStatusLabel, membershipTypeLabel, today } from '../utils'
 import Alert from './Alert'
+import Loading from './Loading'
 import Badge from './Badge'
 import Button from './Button'
 
@@ -36,6 +37,8 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
   }, [load])
 
   async function run(action: () => Promise<unknown>) {
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
     try {
       await action()
       setError(null)
@@ -46,7 +49,7 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
     }
   }
 
-  if (!profile) return error ? <Alert>{error}</Alert> : <p className="text-slate-500">Cargando...</p>
+  if (!profile) return error ? <Alert message={error} /> : <Loading />
 
   return (
     <div className="space-y-5 rounded-lg border border-slate-200 bg-white p-4">
@@ -72,7 +75,7 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
         </div>
       </div>
 
-      {error && <Alert>{error}</Alert>}
+      <Alert message={error} />
 
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Préstamos activos" value={profile.activeLoansCount} />

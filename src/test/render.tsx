@@ -9,7 +9,8 @@ import { vi } from 'vitest'
 /** Muestra la ruta actual para poder comprobar redirecciones */
 function CurrentLocation() {
   const location = useLocation()
-  return <output data-testid="location">{location.pathname + location.search}</output>
+  // Un <div> y no <output>: <output> tiene role="status" y se confundiría con los avisos
+  return <div data-testid="location">{location.pathname + location.search}</div>
 }
 
 /** Renderiza la app completa en `path` con el rol (y socio) guardados en la sesión */

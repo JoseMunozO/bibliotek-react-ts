@@ -17,6 +17,8 @@ export default function NewMemberForm({ onCreated }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
     setSaving(true)
     try {
       const member = await membersApi.create(form)
@@ -54,7 +56,7 @@ export default function NewMemberForm({ onCreated }: Props) {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
       </div>
-      {error && <Alert>{error}</Alert>}
+      <Alert message={error} />
       <Button type="submit" disabled={saving}>
         {saving ? 'Guardando...' : 'Crear socio'}
       </Button>

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { getErrorMessage, membersApi, type MembershipType, type UpdateMemberRequest } from '../api'
 import Alert from '../components/Alert'
+import Loading from '../components/Loading'
 import Button from '../components/Button'
 import { Input, Select } from '../components/Input'
 import { useSession } from '../session'
@@ -31,6 +32,8 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!form) return
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
     setSaving(true)
     try {
       await membersApi.update(memberId, form)
@@ -47,8 +50,8 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
         ← {backLabel}
       </Button>
 
-      {!form && !error && <p className="text-slate-500">Cargando...</p>}
-      {!form && error && <Alert>{error}</Alert>}
+      {!form && !error && <Loading />}
+      {!form && <Alert message={error} />}
 
       {form && (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">
@@ -99,7 +102,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
             </Select>
           </Field>
 
-          {error && <Alert>{error}</Alert>}
+          <Alert message={error} />
 
           <div className="flex gap-2">
             <Button type="submit" disabled={saving}>

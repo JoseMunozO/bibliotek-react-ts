@@ -29,6 +29,9 @@ export default function LoansPage() {
   }, [load])
 
   async function run(action: () => Promise<string>) {
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
+    setSuccess(null)
     try {
       setSuccess(await action())
       setError(null)
@@ -65,8 +68,8 @@ export default function LoansPage() {
         }}
       />
 
-      {error && <Alert>{error}</Alert>}
-      {success && <Alert type="success">{success}</Alert>}
+      <Alert message={error} />
+      <Alert type="success" message={success} />
 
       <section>
         <h2 className="mb-2 font-medium text-slate-900">Préstamos activos ({loans.length})</h2>

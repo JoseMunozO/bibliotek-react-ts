@@ -25,6 +25,10 @@ Det finns ingen inloggning. I stället väljer man en roll i sidhuvudet, precis 
 
 Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna styr bara gränssnittet – API:t har ingen autentisering.
 
+### Tillgänglighet
+
+Fel- och bekräftelsemeddelanden är *live regions* (`role="alert"` respektive `role="status"`) som alltid finns på sidan, så att skärmläsare läser upp dem när de dyker upp. Även laddningsindikatorn och antalet böcker läses upp, och betygsstjärnorna anger valt betyg (`aria-pressed`) och genomsnittet som text.
+
 ## Teknik
 
 | | |

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { booksApi, getErrorMessage, type BookDetailsDTO, type ReviewDTO } from '../api'
 import Alert from '../components/Alert'
+import Loading from '../components/Loading'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
 import NewReviewForm from '../components/NewReviewForm'
@@ -52,8 +53,8 @@ function BookDetail({ bookId }: { bookId: number }) {
         ← Volver
       </Button>
 
-      {error && <Alert>{error}</Alert>}
-      {!book && !error && <p className="text-slate-500">Cargando...</p>}
+      <Alert message={error} />
+      {!book && !error && <Loading />}
 
       {book && (
         <article className="space-y-4 rounded-lg border border-slate-200 bg-white p-5">

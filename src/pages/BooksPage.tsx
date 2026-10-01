@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { booksApi, getErrorMessage, type BookDTO } from '../api'
 import Alert from '../components/Alert'
+import Loading from '../components/Loading'
 import Badge from '../components/Badge'
 import { Input, Select } from '../components/Input'
 import { bookOrderLabel, isBookOrder, sortBooks, type BookOrder } from '../utils'
@@ -89,8 +90,8 @@ export default function BooksPage() {
         </label>
       </div>
 
-      {error && <Alert>{error}</Alert>}
-      {loading && <p className="text-slate-500">Cargando...</p>}
+      <Alert message={error} />
+      {loading && <Loading />}
 
       {!loading && !error && (
         <p className="text-sm text-slate-500" aria-live="polite">

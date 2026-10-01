@@ -67,4 +67,33 @@ describe('NewReviewForm', () => {
     expect(screen.queryByText(/Reseña publicada/)).not.toBeInTheDocument()
     expect(onCreated).not.toHaveBeenCalled()
   })
+
+  it('anuncia errores y confirmaciones, y vacía el aviso al reenviar', async () => {
+    const user = userEvent.setup()
+    let respond: (r: Response) => void = () => {}
+    mockFetch(() => new Promise<Response>((resolve) => (respond = resolve)))
+    renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', 7)
+
+    // Sin estrellas: error en la región role="alert"
+    await user.type(screen.getByPlaceholderText('¿Qué te ha parecido?'), 'Hola')
+    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Elige una puntuación de 1 a 5 estrellas')
+
+    // Al reenviar, el aviso se vacía mientras se espera al backend
+    await user.click(screen.getByRole('button', { name: '3 estrellas' }))
+    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    expect(screen.getByRole('alert')).toBeEmptyDOMElement()
+
+    // Error del backend
+    respond(json({ status: 409, message: 'El socio debe haber devuelto este libro antes de reseñarlo.' }, 409))
+    expect(await screen.findByText(/debe haber devuelto/)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('El socio debe haber devuelto este libro antes de reseñarlo.')
+
+    // Segundo intento correcto: confirmación en role="status" y el error desaparece
+    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    respond(json({ id: 1 }, 201))
+    expect(await screen.findByRole('status')).toHaveTextContent(/Reseña publicada/)
+    expect(screen.getByRole('alert')).toBeEmptyDOMElement()
+  })
 })
+

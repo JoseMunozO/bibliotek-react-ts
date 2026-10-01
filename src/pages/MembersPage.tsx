@@ -43,7 +43,7 @@ export default function MembersPage() {
         />
       )}
 
-      {error && <Alert>{error}</Alert>}
+      <Alert message={error} />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <ul className="divide-y divide-slate-200 self-start rounded-lg border border-slate-200 bg-white">

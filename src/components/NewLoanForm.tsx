@@ -29,6 +29,8 @@ export default function NewLoanForm({ onCreated }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
     setSaving(true)
     try {
       await loansApi.create({ memberId: Number(memberId), bookId: Number(bookId) })
@@ -64,7 +66,7 @@ export default function NewLoanForm({ onCreated }: Props) {
           ))}
         </Select>
       </div>
-      {error && <Alert>{error}</Alert>}
+      <Alert message={error} />
       <Button type="submit" disabled={saving}>
         {saving ? 'Guardando...' : 'Prestar (14 días)'}
       </Button>

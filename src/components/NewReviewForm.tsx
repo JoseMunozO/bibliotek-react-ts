@@ -38,6 +38,8 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
       setError('Elige una puntuación de 1 a 5 estrellas')
       return
     }
+    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    setError(null)
     setSuccess(null)
     setSaving(true)
     try {
@@ -86,8 +88,8 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
         placeholder="¿Qué te ha parecido?"
         className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
       />
-      {error && <Alert>{error}</Alert>}
-      {success && <Alert type="success">{success}</Alert>}
+      <Alert message={error} />
+      <Alert type="success" message={success} />
       <Button type="submit" disabled={saving}>
         {saving ? 'Enviando...' : 'Publicar reseña'}
       </Button>
