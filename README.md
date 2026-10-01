@@ -4,9 +4,17 @@
 
 Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScript och Tailwind CSS. Applikationen pratar med REST-API:t [bibliotek-api](https://github.com/JoseMunozO/bibliotek-api) (Java 25 + Spring Boot + MySQL).
 
+## Skärmbilder
+
+| Böcker (ljust läge) | Bok med recensioner (mörkt läge) |
+|---|---|
+| ![Boklistan med sökning, sortering och filter](docs/screenshots/libros.png) | ![Detaljsida för en bok med recensioner](docs/screenshots/detalle-libro.png) |
+| **Mest utlånade (ljust läge)** | **Medlemsprofil (mörkt läge)** |
+| ![Topplista över mest utlånade böcker med stapeldiagram](docs/screenshots/mas-prestados.png) | ![Medlemslista och profil med lån och böter](docs/screenshots/socio.png) |
+
 ## Funktioner
 
-- **Böcker** – lista med sökning på titel eller författare, sortering (titel, författare eller antal lediga exemplar) filter för tillgängliga böcker och sidindelning (20 per sida), och en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
+- **Böcker** – lista med sökning på titel eller författare, sortering (titel, författare eller antal lediga exemplar), filter för tillgängliga böcker och sidindelning (20 per sida), samt en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
 - **Recensioner** – alla recensioner av en bok med genomsnittligt betyg, samt ett formulär för att skriva en ny (1–5 stjärnor). Endast medlemmar som har lämnat tillbaka boken kan recensera den.
 - **Mest utlånade** – topplista med stapeldiagram (topp 5, 10, 20 eller 50).
 - **Medlemmar** – registrera nya medlemmar, se en medlems profil med lån, böter och statistik, redigera uppgifter och medlemskapstyp, betala böter och stänga av medlemmar.
