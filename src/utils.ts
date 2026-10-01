@@ -39,3 +39,30 @@ export function notificationTypeLabel(type: string): string {
   const label = notificationTypeLabels[type] ?? type.replaceAll('_', ' ')
   return label.charAt(0).toUpperCase() + label.slice(1)
 }
+
+export type BookOrder = 'titulo' | 'autor' | 'disponibles'
+
+export const bookOrderLabel: Record<BookOrder, string> = {
+  titulo: 'Título (A–Z)',
+  autor: 'Autor (A–Z)',
+  disponibles: 'Más ejemplares disponibles',
+}
+
+export const isBookOrder = (value: string | null): value is BookOrder => value !== null && value in bookOrderLabel
+
+// Ignora mayúsculas y tildes, y ordena "Libro 2" antes que "Libro 10"
+const collator = new Intl.Collator('es', { sensitivity: 'base', numeric: true })
+
+/** Devuelve una copia ordenada; a igualdad de criterio, por título */
+export function sortBooks<T extends { title: string; authors: string; availableCopies: number }>(
+  books: T[],
+  order: BookOrder,
+): T[] {
+  const byTitle = (a: T, b: T) => collator.compare(a.title, b.title)
+  const compare: Record<BookOrder, (a: T, b: T) => number> = {
+    titulo: byTitle,
+    autor: (a, b) => collator.compare(a.authors, b.authors) || byTitle(a, b),
+    disponibles: (a, b) => b.availableCopies - a.availableCopies || byTitle(a, b),
+  }
+  return books.toSorted(compare[order])
+}

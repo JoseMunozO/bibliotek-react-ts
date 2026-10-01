@@ -6,7 +6,7 @@ Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScrip
 
 ## Funktioner
 
-- **Böcker** – lista med sökning på titel eller författare, och en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
+- **Böcker** – lista med sökning på titel eller författare, sortering (titel, författare eller antal lediga exemplar) och filter för tillgängliga böcker, och en detaljsida med kategorier, ISBN, språk, antal sidor och tillgängliga exemplar.
 - **Recensioner** – alla recensioner av en bok med genomsnittligt betyg, samt ett formulär för att skriva en ny (1–5 stjärnor). Endast medlemmar som har lämnat tillbaka boken kan recensera den.
 - **Mest utlånade** – topplista med stapeldiagram (topp 5, 10, 20 eller 50).
 - **Medlemmar** – registrera nya medlemmar, se en medlems profil med lån, böter och statistik, redigera uppgifter och medlemskapstyp, betala böter och stänga av medlemmar.
@@ -87,7 +87,7 @@ Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsar
 
 | Adress | Vy |
 |---|---|
-| `/libros` | Böcker (sökningen sparas i `?q=`) |
+| `/libros` | Böcker (sökning, sortering och filter sparas i `?q=`, `?orden=` och `?disponibles=1`) |
 | `/libros/:id` | Bokens detaljer och recensioner |
 | `/mas-prestados` | Mest utlånade (`?top=5\|10\|20\|50`) |
 | `/mi-cuenta` | Mitt konto (rollen Medlem) |
@@ -144,7 +144,7 @@ Testerna ligger bredvid koden de testar (`*.test.ts` / `*.test.tsx`) och körs i
 
 - **API-klienten** – URL:er, metoder och request-kroppar för varje endpoint, felhantering (`ApiError`, nätverksfel, 502 från proxyn).
 - **Logik** – behörigheter per roll, tolkning av id:n i URL:en och hjälpfunktioner.
-- **Komponenter och sidor** – routing och omdirigering per roll, sökning i URL:en (även att gamla svar ignoreras), lån (förlängning, återlämning med böter), medlemsprofil och recensionsformulär.
+- **Komponenter och sidor** – routing och omdirigering per roll, sökning, sortering och filter i URL:en (även att gamla svar ignoreras), lån (förlängning, återlämning med böter), medlemsprofil och recensionsformulär.
 
 Hjälpfunktionerna finns i `src/test/`: `mockFetch` och `json` för att simulera API:t, `renderApp` för att rendera hela appen på en viss adress och med en viss roll, och `renderWithSession` för en enskild komponent.
 
