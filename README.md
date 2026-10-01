@@ -28,18 +28,19 @@ Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna
 | | |
 |---|---|
 | Ramverk | React 19 |
+| Routing | React Router 8 |
 | Språk | TypeScript 6 |
 | Byggverktyg | Vite 8 |
 | Styling | Tailwind CSS 4 (`@tailwindcss/vite`) |
 | Kodkvalitet | ESLint med `typescript-eslint` och `react-hooks` |
 
-Projektet har inga andra körtidsberoenden: API-klienten bygger på `fetch` och navigeringen sköts med flikar i stället för en router.
+Utöver React Router finns inga andra körtidsberoenden: API-klienten bygger på `fetch`.
 
 ## Kom igång
 
 ### Krav
 
-- Node.js 20.19+ eller 22.12+ (testat med Node 24)
+- Node.js 22.22 eller senare (krävs av React Router 8; testat med Node 24)
 - Backend [bibliotek-api](https://github.com/JoseMunozO/bibliotek-api) igång på `http://localhost:8090` – se dess README för databas och miljövariabler
 
 ### Installation
@@ -72,6 +73,25 @@ För ett produktionsbygge mot en annan server anger du API:ts adress i en `.env.
 VITE_API_URL=https://min-server.se/api
 ```
 
+## Adresser
+
+Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsarens bakåtknapp och dela länkar:
+
+| Adress | Vy |
+|---|---|
+| `/libros` | Böcker (sökningen sparas i `?q=`) |
+| `/libros/:id` | Bokens detaljer och recensioner |
+| `/mas-prestados` | Mest utlånade (`?top=5\|10\|20\|50`) |
+| `/mi-cuenta` | Mitt konto (rollen Medlem) |
+| `/socios`, `/socios/:id` | Medlemmar och en medlems profil |
+| `/socios/:id/editar` | Redigera medlem (administratör) |
+| `/prestamos` | Lån |
+| `/notificaciones` | Aviseringar (`?socio=` väljer medlem) |
+
+Om rollen inte har tillgång till en adress skickas man till `/libros`.
+
+> **Driftsättning:** eftersom det är en SPA måste webbservern skicka `index.html` för alla okända sökvägar (t.ex. en *rewrite* till `/index.html` på Netlify eller Vercel). Under utveckling sköter Vite det automatiskt.
+
 ## Projektstruktur
 
 ```
@@ -83,9 +103,10 @@ src/
 ├── components/        # Återanvändbara komponenter (Button, Input, Badge, Alert, Stars …)
 │                      # och formulär (NewMemberForm, NewLoanForm, NewReviewForm …)
 ├── pages/             # En sida per vy: böcker, mest utlånade, mitt konto, medlemmar, lån, aviseringar
+├── navigation.ts      # Hjälpfunktioner för URL:er (parseId, useGoBack)
 ├── session.ts         # Simulerade roller och behörigheter (useSession)
 ├── utils.ts           # Datum, belopp och etiketter för statusar
-├── App.tsx            # Layout med navigeringsflikar
+├── App.tsx            # Layout, navigering och routes
 └── index.css          # Endast @import "tailwindcss"
 ```
 

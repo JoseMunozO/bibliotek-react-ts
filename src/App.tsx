@@ -1,35 +1,33 @@
-import { useState } from 'react'
+import type { ReactElement } from 'react'
+import { Navigate, NavLink, Route, Routes } from 'react-router'
 import SessionBar from './components/SessionBar'
+import BookDetailPage from './pages/BookDetailPage'
 import BooksPage from './pages/BooksPage'
 import LoansPage from './pages/LoansPage'
-import MembersPage from './pages/MembersPage'
+import MembersPage, { EditMemberRoute } from './pages/MembersPage'
 import MostBorrowedPage from './pages/MostBorrowedPage'
-import MyAccountPage from './pages/MyAccountPage'
+import MyAccountPage, { EditMyAccountPage } from './pages/MyAccountPage'
+import NotFoundPage from './pages/NotFoundPage'
 import NotificationsPage from './pages/NotificationsPage'
-import { useSession, type Session } from './session'
-
-const pages = {
-  books: { label: 'Libros', Component: BooksPage, visible: () => true },
-  mostBorrowed: { label: 'Más prestados', Component: MostBorrowedPage, visible: () => true },
-  account: { label: 'Mi cuenta', Component: MyAccountPage, visible: (s: Session) => s.role === 'user' },
-  members: { label: 'Socios', Component: MembersPage, visible: (s: Session) => s.can.viewMembers },
-  loans: { label: 'Préstamos', Component: LoansPage, visible: (s: Session) => s.can.manageLoans },
-  notifications: {
-    label: 'Notificaciones',
-    Component: NotificationsPage,
-    visible: (s: Session) => s.can.manageNotifications,
-  },
-}
-
-type PageKey = keyof typeof pages
+import { useSession } from './session'
 
 function App() {
   const session = useSession()
-  const [page, setPage] = useState<PageKey>('books')
-  const visiblePages = (Object.keys(pages) as PageKey[]).filter((key) => pages[key].visible(session))
-  // Si el rol cambia y la página actual ya no está permitida, se vuelve a Libros
-  const current = visiblePages.includes(page) ? page : 'books'
-  const { Component } = pages[current]
+  const { can } = session
+  const isUser = session.role === 'user'
+
+  // Pestañas visibles según el rol (mismo reparto que el menú de consola)
+  const tabs = [
+    { to: '/libros', label: 'Libros', visible: true },
+    { to: '/mas-prestados', label: 'Más prestados', visible: true },
+    { to: '/mi-cuenta', label: 'Mi cuenta', visible: isUser },
+    { to: '/socios', label: 'Socios', visible: can.viewMembers },
+    { to: '/prestamos', label: 'Préstamos', visible: can.manageLoans },
+    { to: '/notificaciones', label: 'Notificaciones', visible: can.manageNotifications },
+  ].filter((tab) => tab.visible)
+
+  // Una ruta no permitida para el rol actual redirige a Libros
+  const only = (allowed: boolean, element: ReactElement) => (allowed ? element : <Navigate to="/libros" replace />)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -37,17 +35,18 @@ function App() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
           <h1 className="text-xl font-semibold text-slate-900">Bibliotek</h1>
           <nav className="flex flex-wrap gap-1">
-            {visiblePages.map((key) => (
-              <button
-                key={key}
-                onClick={() => setPage(key)}
-                aria-current={key === current ? 'page' : undefined}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-                  key === current ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'
-                }`}
+            {tabs.map((tab) => (
+              <NavLink
+                key={tab.to}
+                to={tab.to}
+                className={({ isActive }) =>
+                  `rounded-lg px-3 py-1.5 text-sm font-medium ${
+                    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'
+                  }`
+                }
               >
-                {pages[key].label}
-              </button>
+                {tab.label}
+              </NavLink>
             ))}
           </nav>
           <div className="ml-auto">
@@ -56,8 +55,20 @@ function App() {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {/* key: al cambiar de rol o de socio se remonta la página con datos nuevos */}
-        <Component key={`${session.role}-${session.memberId}`} />
+        <Routes>
+          <Route index element={<Navigate to="/libros" replace />} />
+          <Route path="libros" element={<BooksPage />} />
+          <Route path="libros/:id" element={<BookDetailPage />} />
+          <Route path="mas-prestados" element={<MostBorrowedPage />} />
+          <Route path="mi-cuenta" element={only(isUser, <MyAccountPage />)} />
+          <Route path="mi-cuenta/editar" element={only(isUser, <EditMyAccountPage />)} />
+          <Route path="socios" element={only(can.viewMembers, <MembersPage />)} />
+          <Route path="socios/:id" element={only(can.viewMembers, <MembersPage />)} />
+          <Route path="socios/:id/editar" element={only(can.manageMembers, <EditMemberRoute />)} />
+          <Route path="prestamos" element={only(can.manageLoans, <LoansPage />)} />
+          <Route path="notificaciones" element={only(can.manageNotifications, <NotificationsPage />)} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </main>
     </div>
   )

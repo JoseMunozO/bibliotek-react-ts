@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useParams } from 'react-router'
 import { booksApi, getErrorMessage, type BookDetailsDTO, type ReviewDTO } from '../api'
 import Alert from '../components/Alert'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
 import NewReviewForm from '../components/NewReviewForm'
 import Stars from '../components/Stars'
-
-interface Props {
-  bookId: number
-  onBack: () => void
-}
+import { parseId, useGoBack } from '../navigation'
+import NotFoundPage from './NotFoundPage'
 
 const splitList = (value: string) =>
   value
@@ -17,7 +15,16 @@ const splitList = (value: string) =>
     .map((s) => s.trim())
     .filter(Boolean)
 
-export default function BookDetailPage({ bookId, onBack }: Props) {
+/** Ruta /libros/:id */
+export default function BookDetailPage() {
+  const bookId = parseId(useParams().id)
+  if (bookId === null) return <NotFoundPage message="Ese libro no existe." />
+  // key: al pasar de un libro a otro se empieza con el estado limpio
+  return <BookDetail key={bookId} bookId={bookId} />
+}
+
+function BookDetail({ bookId }: { bookId: number }) {
+  const goBack = useGoBack('/libros')
   const [book, setBook] = useState<BookDetailsDTO | null>(null)
   const [reviews, setReviews] = useState<ReviewDTO[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -41,8 +48,8 @@ export default function BookDetailPage({ bookId, onBack }: Props) {
 
   return (
     <div className="space-y-6">
-      <Button variant="secondary" onClick={onBack}>
-        ← Volver a libros
+      <Button variant="secondary" onClick={goBack}>
+        ← Volver
       </Button>
 
       {error && <Alert>{error}</Alert>}

@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { booksApi, getErrorMessage, type BookStatisticsDTO } from '../api'
 import Alert from '../components/Alert'
 import { Select } from '../components/Input'
-import BookDetailPage from './BookDetailPage'
 
 const limits = [5, 10, 20, 50]
 
 export default function MostBorrowedPage() {
   const [stats, setStats] = useState<BookStatisticsDTO[]>([])
-  const [limit, setLimit] = useState(10)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const top = Number(searchParams.get('top'))
+  const limit = limits.includes(top) ? top : 10
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState<number | null>(null)
 
   useEffect(() => {
     booksApi
@@ -24,8 +25,6 @@ export default function MostBorrowedPage() {
       .finally(() => setLoading(false))
   }, [limit])
 
-  if (selectedId !== null) return <BookDetailPage bookId={selectedId} onBack={() => setSelectedId(null)} />
-
   const max = Math.max(1, ...stats.map((s) => s.loanCount))
 
   return (
@@ -34,7 +33,7 @@ export default function MostBorrowedPage() {
         <h2 className="text-lg font-semibold text-slate-900">Libros más prestados</h2>
         <label className="flex items-center gap-2 text-sm text-slate-600">
           Mostrar
-          <Select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
+          <Select value={limit} onChange={(e) => setSearchParams({ top: e.target.value }, { replace: true })}>
             {limits.map((l) => (
               <option key={l} value={l}>
                 Top {l}
@@ -54,8 +53,8 @@ export default function MostBorrowedPage() {
         <ol className="rounded-lg border border-slate-200 bg-white p-2">
           {stats.map((s, index) => (
             <li key={s.bookId}>
-              <button
-                onClick={() => setSelectedId(s.bookId)}
+              <Link
+                to={`/libros/${s.bookId}`}
                 title={`${s.title}: ${s.loanCount} ${s.loanCount === 1 ? 'préstamo' : 'préstamos'}`}
                 className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-2 rounded-md px-2 py-2 text-left hover:bg-slate-50 sm:grid-cols-[2rem_minmax(0,16rem)_minmax(0,1fr)]"
               >
@@ -70,7 +69,7 @@ export default function MostBorrowedPage() {
                   </span>
                   <span className="w-8 text-right text-sm text-slate-600 tabular-nums">{s.loanCount}</span>
                 </span>
-              </button>
+              </Link>
             </li>
           ))}
         </ol>

@@ -35,7 +35,11 @@ export async function request<T>(method: Method, path: string, body?: unknown): 
 
   if (!response.ok) {
     const error = (await response.json().catch(() => null)) as ApiErrorBody | null
-    throw new ApiError(response.status, error?.message ?? `Error ${response.status}`)
+    if (error?.message) throw new ApiError(response.status, error.message)
+    // Sin cuerpo JSON en 502/503/504: el proxy de Vite no llega al backend (está parado)
+    if (response.status >= 502 && response.status <= 504)
+      throw new ApiError(0, 'No se pudo conectar con el servidor')
+    throw new ApiError(response.status, `Error ${response.status}`)
   }
 
   return (await response.json()) as T

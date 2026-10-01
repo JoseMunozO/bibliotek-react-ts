@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { getErrorMessage, membersApi, type MemberDTO } from '../api'
 import Alert from '../components/Alert'
 import { Select } from '../components/Input'
 import MemberNotifications from '../components/MemberNotifications'
+import { parseId } from '../navigation'
 
 export default function NotificationsPage() {
   const [members, setMembers] = useState<MemberDTO[]>([])
-  const [memberId, setMemberId] = useState<number | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const memberId = parseId(searchParams.get('socio'))
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -22,7 +25,7 @@ export default function NotificationsPage() {
         Socio
         <Select
           value={memberId ?? ''}
-          onChange={(e) => setMemberId(e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) => setSearchParams(e.target.value ? { socio: e.target.value } : {})}
         >
           <option value="">Selecciona un socio...</option>
           {members.map((m) => (

@@ -1,19 +1,22 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link, Navigate, useNavigate, useParams } from 'react-router'
 import { getErrorMessage, membersApi, type MemberDTO } from '../api'
 import Alert from '../components/Alert'
 import Badge from '../components/Badge'
 import MemberDetail from '../components/MemberDetail'
 import NewMemberForm from '../components/NewMemberForm'
 import EditMemberPage from './EditMemberPage'
+import { parseId } from '../navigation'
 import { useSession } from '../session'
 import { memberStatusColor, memberStatusLabel } from '../utils'
 
+/** Rutas /socios y /socios/:id */
 export default function MembersPage() {
   const { can } = useSession()
+  const navigate = useNavigate()
+  const selectedId = parseId(useParams().id)
   const [members, setMembers] = useState<MemberDTO[]>([])
-  const [selectedId, setSelectedId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [editing, setEditing] = useState(false)
 
   const loadMembers = useCallback(() => {
     membersApi
@@ -29,25 +32,13 @@ export default function MembersPage() {
     loadMembers()
   }, [loadMembers])
 
-  if (editing && selectedId !== null)
-    return (
-      <EditMemberPage
-        memberId={selectedId}
-        onBack={() => setEditing(false)}
-        onSaved={() => {
-          setEditing(false)
-          loadMembers()
-        }}
-      />
-    )
-
   return (
     <div className="space-y-6">
       {can.manageMembers && (
         <NewMemberForm
           onCreated={(member) => {
             loadMembers()
-            setSelectedId(member.id)
+            navigate(`/socios/${member.id}`)
           }}
         />
       )}
@@ -58,8 +49,8 @@ export default function MembersPage() {
         <ul className="divide-y divide-slate-200 self-start rounded-lg border border-slate-200 bg-white">
           {members.map((member) => (
             <li key={member.id}>
-              <button
-                onClick={() => setSelectedId(member.id)}
+              <Link
+                to={`/socios/${member.id}`}
                 className={`flex w-full items-center justify-between gap-2 p-3 text-left hover:bg-slate-50 ${
                   member.id === selectedId ? 'bg-indigo-50' : ''
                 }`}
@@ -69,7 +60,7 @@ export default function MembersPage() {
                   <p className="text-sm text-slate-500">{member.email}</p>
                 </div>
                 <Badge color={memberStatusColor[member.status]}>{memberStatusLabel[member.status]}</Badge>
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -81,10 +72,19 @@ export default function MembersPage() {
             key={selectedId}
             memberId={selectedId}
             onChange={loadMembers}
-            onEdit={can.manageMembers ? () => setEditing(true) : undefined}
+            onEdit={can.manageMembers ? () => navigate(`/socios/${selectedId}/editar`) : undefined}
           />
         )}
       </div>
     </div>
   )
+}
+
+/** Ruta /socios/:id/editar (solo administrador) */
+export function EditMemberRoute() {
+  const navigate = useNavigate()
+  const memberId = parseId(useParams().id)
+  if (memberId === null) return <Navigate to="/socios" replace />
+  const back = () => navigate(`/socios/${memberId}`)
+  return <EditMemberPage memberId={memberId} onBack={back} onSaved={back} />
 }
