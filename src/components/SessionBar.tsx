@@ -1,24 +1,13 @@
-import { useEffect, useState } from 'react'
-import { getErrorMessage, membersApi, type MemberDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { firstError, memberQueries } from '../api/queries'
 import { roleLabel, useSession, type Role } from '../session'
 import { Select } from './Input'
 
 /** Val av roll (och av medlem, för rollen "Medlem") i sidhuvudet */
 export default function SessionBar() {
   const { role, memberId, setRole, setMemberId } = useSession()
-  const [members, setMembers] = useState<MemberDTO[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (role !== 'user') return
-    membersApi
-      .list()
-      .then((data) => {
-        setMembers(data)
-        setError(null)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [role])
+  const { data: members = [], error: membersError } = useQuery({ ...memberQueries.list(), enabled: role === 'user' })
+  const error = firstError(membersError)
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm">

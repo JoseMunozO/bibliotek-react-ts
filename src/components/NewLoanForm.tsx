@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { booksApi, getErrorMessage, loansApi, membersApi, type BookDTO, type MemberDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState, type FormEvent } from 'react'
+import { getErrorMessage, type MemberDTO } from '../api'
+import { bookQueries, firstError, memberQueries, useCreateLoan } from '../api/queries'
 import Alert from './Alert'
 import Button from './Button'
 import { Select } from './Input'
@@ -8,40 +10,30 @@ interface Props {
   onCreated: () => void
 }
 
+const activeMembers = (members: MemberDTO[]) => members.filter((m) => m.status === 'active')
+
 export default function NewLoanForm({ onCreated }: Props) {
-  const [members, setMembers] = useState<MemberDTO[]>([])
-  const [books, setBooks] = useState<BookDTO[]>([])
+  // Listorna laddas om av sig själva när ett lån skapas eller lämnas tillbaka
+  const membersQuery = useQuery({ ...memberQueries.list(), select: activeMembers })
+  const booksQuery = useQuery(bookQueries.list({ available: true }))
+  const members = membersQuery.data ?? []
+  const books = booksQuery.data ?? []
+  const createLoan = useCreateLoan()
   const [memberId, setMemberId] = useState('')
   const [bookId, setBookId] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-
-  function loadOptions() {
-    Promise.all([membersApi.list(), booksApi.list({ available: true })])
-      .then(([members, books]) => {
-        setMembers(members.filter((m) => m.status === 'active'))
-        setBooks(books)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-  }
-
-  useEffect(loadOptions, [])
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const error = submitError ?? firstError(membersQuery.error, booksQuery.error)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
-    setError(null)
-    setSaving(true)
+    setSubmitError(null)
     try {
-      await loansApi.create({ memberId: Number(memberId), bookId: Number(bookId) })
+      await createLoan.mutateAsync({ memberId: Number(memberId), bookId: Number(bookId) })
       setBookId('')
-      setError(null)
-      loadOptions()
       onCreated()
     } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setSaving(false)
+      setSubmitError(getErrorMessage(err))
     }
   }
 
@@ -67,8 +59,8 @@ export default function NewLoanForm({ onCreated }: Props) {
         </Select>
       </div>
       <Alert message={error} />
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Sparar …' : 'Låna ut (14 dagar)'}
+      <Button type="submit" disabled={createLoan.isPending}>
+        {createLoan.isPending ? 'Sparar …' : 'Låna ut (14 dagar)'}
       </Button>
     </form>
   )

@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { booksApi, getErrorMessage, membersApi, type MemberDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState, type FormEvent } from 'react'
+import { getErrorMessage } from '../api'
+import { firstError, memberQueries, useAddReview } from '../api/queries'
 import Alert from './Alert'
 import Button from './Button'
 import { Select } from './Input'
@@ -8,51 +10,40 @@ import { useSession } from '../session'
 
 interface Props {
   bookId: number
-  onCreated: () => void
 }
 
-export default function NewReviewForm({ bookId, onCreated }: Props) {
+/** Recensionerna laddas om av sig själva när en recension publiceras */
+export default function NewReviewForm({ bookId }: Props) {
   const session = useSession()
-  const [members, setMembers] = useState<MemberDTO[]>([])
+  const membersQuery = useQuery({ ...memberQueries.list(), enabled: session.can.reviewAsAnyMember })
+  const members = membersQuery.data ?? []
+  const addReview = useAddReview(bookId)
   const [selectedMemberId, setSelectedMemberId] = useState('')
   // Rollen Medlem recenserar alltid som medlemmen som valts i sidhuvudet
   const memberId = session.can.reviewAsAnyMember ? selectedMemberId : String(session.memberId ?? '')
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-
-  useEffect(() => {
-    if (!session.can.reviewAsAnyMember) return
-    membersApi
-      .list()
-      .then(setMembers)
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [session.can.reviewAsAnyMember])
+  const error = submitError ?? firstError(membersQuery.error)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (rating === 0) {
       setSuccess(null)
-      setError('Välj ett betyg från 1 till 5 stjärnor')
+      setSubmitError('Välj ett betyg från 1 till 5 stjärnor')
       return
     }
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
-    setError(null)
+    setSubmitError(null)
     setSuccess(null)
-    setSaving(true)
     try {
-      await booksApi.addReview(bookId, { memberId: Number(memberId), rating, comment })
+      await addReview.mutateAsync({ memberId: Number(memberId), rating, comment })
       setRating(0)
       setComment('')
-      setError(null)
       setSuccess('Recensionen har publicerats. Tack för din åsikt!')
-      onCreated()
     } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setSaving(false)
+      setSubmitError(getErrorMessage(err))
     }
   }
 
@@ -90,8 +81,8 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
       />
       <Alert message={error} />
       <Alert type="success" message={success} />
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Skickar …' : 'Publicera recension'}
+      <Button type="submit" disabled={addReview.isPending}>
+        {addReview.isPending ? 'Skickar …' : 'Publicera recension'}
       </Button>
     </form>
   )

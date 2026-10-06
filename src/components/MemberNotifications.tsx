@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { getErrorMessage, membersApi, notificationsApi, type NotificationDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { getErrorMessage, type NotificationDTO } from '../api'
+import { firstError, memberQueries, useMarkNotificationsAsRead } from '../api/queries'
 import { notificationTypeLabel } from '../utils'
 import Alert from './Alert'
 import Loading from './Loading'
@@ -13,35 +15,26 @@ interface Props {
   canSend?: boolean
 }
 
+/** Senaste först */
+const newestFirst = (notifications: NotificationDTO[]) =>
+  notifications.toSorted((a, b) => b.sentDate.localeCompare(a.sentDate) || b.id - a.id)
+
 export default function MemberNotifications({ memberId, canSend = false }: Props) {
-  const [notifications, setNotifications] = useState<NotificationDTO[]>([])
+  const query = useQuery({ ...memberQueries.notifications(memberId), select: newestFirst })
+  const notifications = query.data ?? []
+  const loading = query.isPending
+  const markNotificationsAsRead = useMarkNotificationsAsRead(memberId)
   const [onlyUnread, setOnlyUnread] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const load = useCallback(() => {
-    membersApi
-      .notifications(memberId)
-      .then((data) => {
-        // Senaste först
-        setNotifications(data.toSorted((a, b) => b.sentDate.localeCompare(a.sentDate) || b.id - a.id))
-        setError(null)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-      .finally(() => setLoading(false))
-  }, [memberId])
-
-  useEffect(() => {
-    load()
-  }, [load])
+  const [actionError, setActionError] = useState<string | null>(null)
+  const error = actionError ?? firstError(query.error)
 
   async function markAsRead(ids: number[]) {
+    setActionError(null)
     try {
-      await Promise.all(ids.map((id) => notificationsApi.markAsRead(id)))
+      await markNotificationsAsRead.mutateAsync(ids)
     } catch (e) {
-      setError(getErrorMessage(e))
+      setActionError(getErrorMessage(e))
     }
-    load()
   }
 
   const unread = notifications.filter((n) => !n.read)
@@ -107,7 +100,7 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
         </ul>
       )}
 
-      {canSend && <NewNotificationForm memberId={memberId} onCreated={load} />}
+      {canSend && <NewNotificationForm memberId={memberId} />}
     </div>
   )
 }

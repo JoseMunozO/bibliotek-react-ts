@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router'
-import { booksApi, getErrorMessage, type BookDetailsDTO, type ReviewDTO } from '../api'
+import { bookQueries, firstError } from '../api/queries'
 import Alert from '../components/Alert'
 import Loading from '../components/Loading'
 import Badge from '../components/Badge'
@@ -20,30 +20,15 @@ const splitList = (value: string) =>
 export default function BookDetailPage() {
   const bookId = parseId(useParams().id)
   if (bookId === null) return <NotFoundPage message="Den boken finns inte." />
-  // key: när man går från en bok till en annan börjar man med ett rent tillstånd
+  // key: när man går från en bok till en annan börjar formuläret om från början
   return <BookDetail key={bookId} bookId={bookId} />
 }
 
 function BookDetail({ bookId }: { bookId: number }) {
   const goBack = useGoBack('/bocker')
-  const [book, setBook] = useState<BookDetailsDTO | null>(null)
-  const [reviews, setReviews] = useState<ReviewDTO[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  const loadReviews = useCallback(() => {
-    booksApi
-      .reviews(bookId)
-      .then(setReviews)
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [bookId])
-
-  useEffect(() => {
-    booksApi
-      .get(bookId)
-      .then(setBook)
-      .catch((e) => setError(getErrorMessage(e)))
-    loadReviews()
-  }, [bookId, loadReviews])
+  const { data: book, error: bookError } = useQuery(bookQueries.get(bookId))
+  const { data: reviews = [], error: reviewsError } = useQuery(bookQueries.reviews(bookId))
+  const error = firstError(bookError, reviewsError)
 
   const average = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0
 
@@ -113,7 +98,7 @@ function BookDetail({ bookId }: { bookId: number }) {
           </ul>
         )}
 
-        {book && <NewReviewForm bookId={bookId} onCreated={loadReviews} />}
+        {book && <NewReviewForm bookId={bookId} />}
       </section>
     </div>
   )

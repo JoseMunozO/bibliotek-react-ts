@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { getErrorMessage, loansApi, type LoanDTO, type OverdueLoanDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { getErrorMessage, type LoanDTO } from '../api'
+import { firstError, loanQueries, useExtendLoan, useReturnLoan } from '../api/queries'
 import Alert from '../components/Alert'
 import Badge from '../components/Badge'
 import Button from '../components/Button'
@@ -8,44 +10,29 @@ import NewLoanForm from '../components/NewLoanForm'
 import { formatAmount, today } from '../utils'
 
 export default function LoansPage() {
-  const [loans, setLoans] = useState<LoanDTO[]>([])
-  const [overdue, setOverdue] = useState<OverdueLoanDTO[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const { data: loans = [], error: loansError } = useQuery(loanQueries.active())
+  const { data: overdue = [], error: overdueError } = useQuery(loanQueries.overdue())
+  const returnLoan = useReturnLoan()
+  const extendLoan = useExtendLoan()
+  const [actionError, setActionError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  // När ett lån skapas monteras formuläret om för att ladda om medlemmar och böcker
-  const [formKey, setFormKey] = useState(0)
+  const error = actionError ?? firstError(loansError, overdueError)
 
-  const load = useCallback(() => {
-    Promise.all([loansApi.list(), loansApi.overdue()])
-      .then(([loans, overdue]) => {
-        setLoans(loans)
-        setOverdue(overdue)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [])
-
-  useEffect(() => {
-    load()
-  }, [load])
-
+  // Listorna, formulärets lediga böcker och medlemmarnas uppgifter laddas om av mutationerna
   async function run(action: () => Promise<string>) {
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
-    setError(null)
+    setActionError(null)
     setSuccess(null)
     try {
       setSuccess(await action())
-      setError(null)
-      load()
     } catch (e) {
-      setSuccess(null)
-      setError(getErrorMessage(e))
+      setActionError(getErrorMessage(e))
     }
   }
 
   const handleReturn = (loan: LoanDTO) =>
     run(async () => {
-      const { fineAmount } = await loansApi.return(loan.id)
-      setFormKey((k) => k + 1) // ett exemplar till är ledigt
+      const { fineAmount } = await returnLoan.mutateAsync(loan.id)
       return fineAmount > 0
         ? `"${loan.bookTitle}" återlämnad för sent. Böter: ${formatAmount(fineAmount)}`
         : `"${loan.bookTitle}" återlämnad i tid.`
@@ -53,18 +40,16 @@ export default function LoansPage() {
 
   const handleExtend = (loan: LoanDTO, days: number) =>
     run(async () => {
-      const updated = await loansApi.extend(loan.id, days)
+      const updated = await extendLoan.mutateAsync({ id: loan.id, days })
       return `"${loan.bookTitle}" förlängd till ${updated.dueDate}.`
     })
 
   return (
     <div className="space-y-6">
       <NewLoanForm
-        key={formKey}
         onCreated={() => {
           setSuccess('Lånet har skapats.')
-          setError(null)
-          load()
+          setActionError(null)
         }}
       />
 

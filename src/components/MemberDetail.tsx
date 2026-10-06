@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
-import { getErrorMessage, membersApi, type FineDTO, type LoanDTO, type MemberProfileDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { getErrorMessage } from '../api'
+import { firstError, memberQueries, usePayFine, useSuspendMember } from '../api/queries'
 import { useSession } from '../session'
 import { formatAmount, memberStatusColor, memberStatusLabel, membershipTypeLabel, today } from '../utils'
 import Alert from './Alert'
@@ -9,43 +11,29 @@ import Button from './Button'
 
 interface Props {
   memberId: number
-  /** Anropas när något ändras hos medlemmen (t.ex. status) */
-  onChange: () => void
   /** Om den utelämnas visas inte knappen Redigera */
   onEdit?: () => void
 }
 
-export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
+/** Profilen och medlemslistan laddas om av sig själva när medlemmen stängs av eller betalar */
+export default function MemberDetail({ memberId, onEdit }: Props) {
   const { can } = useSession()
-  const [profile, setProfile] = useState<MemberProfileDTO | null>(null)
-  const [loans, setLoans] = useState<LoanDTO[]>([])
-  const [fines, setFines] = useState<FineDTO[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  const load = useCallback(() => {
-    Promise.all([membersApi.get(memberId), membersApi.loans(memberId), membersApi.fines(memberId)])
-      .then(([profile, loans, fines]) => {
-        setProfile(profile)
-        setLoans(loans)
-        setFines(fines)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [memberId])
-
-  useEffect(() => {
-    load()
-  }, [load])
+  const profileQuery = useQuery(memberQueries.get(memberId))
+  const { data: loans = [], error: loansError } = useQuery(memberQueries.loans(memberId))
+  const { data: fines = [], error: finesError } = useQuery(memberQueries.fines(memberId))
+  const profile = profileQuery.data
+  const suspend = useSuspendMember(memberId)
+  const payFine = usePayFine(memberId)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const error = actionError ?? firstError(profileQuery.error, loansError, finesError)
 
   async function run(action: () => Promise<unknown>) {
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
-    setError(null)
+    setActionError(null)
     try {
       await action()
-      setError(null)
-      load()
-      onChange()
     } catch (e) {
-      setError(getErrorMessage(e))
+      setActionError(getErrorMessage(e))
     }
   }
 
@@ -68,7 +56,7 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
             </Button>
           )}
           {can.manageMembers && profile.status === 'active' && (
-            <Button variant="danger" onClick={() => run(() => membersApi.suspend(memberId))}>
+            <Button variant="danger" onClick={() => run(() => suspend.mutateAsync())}>
               Stäng av
             </Button>
           )}
@@ -122,7 +110,7 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
                 </span>
                 {fine.status === 'pending' ? (
                   can.payFines ? (
-                    <Button onClick={() => run(() => membersApi.payFine(memberId, fine.id))}>Betala</Button>
+                    <Button onClick={() => run(() => payFine.mutateAsync(fine.id))}>Betala</Button>
                   ) : (
                     <Badge color="amber">Obetald</Badge>
                   )

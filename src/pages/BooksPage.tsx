@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { booksApi, getErrorMessage, type BookDTO } from '../api'
+import { bookQueries, firstError } from '../api/queries'
 import Alert from '../components/Alert'
 import Loading from '../components/Loading'
 import Badge from '../components/Badge'
@@ -17,14 +18,18 @@ const PAGE_SIZE = 20
  * så att det finns kvar när man kommer tillbaka från detaljsidan.
  */
 export default function BooksPage() {
-  const [books, setBooks] = useState<BookDTO[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
   const search = searchParams.get('q') ?? ''
   const onlyAvailable = searchParams.get('tillgangliga') === '1'
   const orderParam = searchParams.get('sortering')
   const order: BookOrder = isBookOrder(orderParam) ? orderParam : 'titel'
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const term = search.trim()
+  // Svar från tidigare sökningar hamnar under sin egen nyckel och ersätter aldrig den aktuella.
+  // Medan nästa sökning laddas visas den föregående listan kvar.
+  const query = useQuery({ ...bookQueries.list(term ? { search: term } : undefined), placeholderData: keepPreviousData })
+  const books = useMemo(() => query.data ?? [], [query.data])
+  const error = firstError(query.error)
+  const loading = query.isPending
 
   /** Ändrar ett filter i URL:en, behåller de andra och går tillbaka till första sidan */
   function setParam(key: string, value: string | null) {
@@ -50,24 +55,6 @@ export default function BooksPage() {
     })
     window.scrollTo({ top: 0 })
   }
-
-  useEffect(() => {
-    const term = search.trim()
-    // Ignorerar svar från tidigare sökningar som kommer för sent
-    let current = true
-    booksApi
-      .list(term ? { search: term } : undefined)
-      .then((data) => {
-        if (!current) return
-        setBooks(data)
-        setError(null)
-      })
-      .catch((e) => current && setError(getErrorMessage(e)))
-      .finally(() => current && setLoading(false))
-    return () => {
-      current = false
-    }
-  }, [search])
 
   const visible = useMemo(
     () => sortBooks(onlyAvailable ? books.filter((b) => b.availableCopies > 0) : books, order),
