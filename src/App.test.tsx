@@ -26,10 +26,10 @@ const tabs = () =>
 const location = () => screen.getByTestId('location').textContent
 
 describe('rutas', () => {
-  it('redirige la raíz a /libros', async () => {
+  it('redirige la raíz a /bocker', async () => {
     renderApp('/')
     expect(await screen.findByPlaceholderText('Buscar por título o autor...')).toBeInTheDocument()
-    expect(location()).toBe('/libros')
+    expect(location()).toBe('/bocker')
   })
 
   it('muestra una página 404 para rutas desconocidas', () => {
@@ -39,7 +39,7 @@ describe('rutas', () => {
 
   it('muestra 404 para un id de libro no válido sin llamar a la API', () => {
     const fetchMock = mockFetch(() => json([]))
-    renderApp('/libros/abc', { role: 'admin' })
+    renderApp('/bocker/abc', { role: 'admin' })
     expect(screen.getByText('Ese libro no existe.')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith('/api/books/'))).toBe(false)
   })
@@ -47,30 +47,30 @@ describe('rutas', () => {
 
 describe('roles', () => {
   it('Administrador: ve todas las pestañas de gestión y puede editar socios', async () => {
-    renderApp('/socios/3/editar', { role: 'admin' })
+    renderApp('/medlemmar/3/redigera', { role: 'admin' })
 
     expect(tabs()).toEqual(['Libros', 'Más prestados', 'Socios', 'Préstamos', 'Notificaciones'])
     expect(await screen.findByDisplayValue('Oliver')).toBeInTheDocument()
     expect(screen.getByLabelText('Tipo de membresía')).toBeEnabled()
-    expect(location()).toBe('/socios/3/editar')
+    expect(location()).toBe('/medlemmar/3/redigera')
   })
 
-  it('Bibliotecario: no puede editar socios y se le redirige a /libros', () => {
-    renderApp('/socios/3/editar', { role: 'librarian' })
+  it('Bibliotecario: no puede editar socios y se le redirige a /bocker', () => {
+    renderApp('/medlemmar/3/redigera', { role: 'librarian' })
 
     expect(tabs()).toEqual(['Libros', 'Más prestados', 'Socios', 'Préstamos', 'Notificaciones'])
-    expect(location()).toBe('/libros')
+    expect(location()).toBe('/bocker')
   })
 
   it('Socio: solo ve sus pestañas y no puede entrar en préstamos', () => {
-    renderApp('/prestamos', { role: 'user', memberId: 3 })
+    renderApp('/lan', { role: 'user', memberId: 3 })
 
     expect(tabs()).toEqual(['Libros', 'Más prestados', 'Mi cuenta'])
-    expect(location()).toBe('/libros')
+    expect(location()).toBe('/bocker')
   })
 
   it('Socio: edita su cuenta sin poder cambiar el tipo de membresía', async () => {
-    renderApp('/mi-cuenta/editar', { role: 'user', memberId: 3 })
+    renderApp('/mitt-konto/redigera', { role: 'user', memberId: 3 })
 
     expect(await screen.findByDisplayValue('Oliver')).toBeInTheDocument()
     expect(screen.getByLabelText('Tipo de membresía')).toBeDisabled()
@@ -78,7 +78,7 @@ describe('roles', () => {
   })
 
   it('Socio sin elegir: pide que se identifique', () => {
-    renderApp('/mi-cuenta', { role: 'user' })
+    renderApp('/mitt-konto', { role: 'user' })
     expect(screen.getByText(/Elige quién eres/)).toBeInTheDocument()
   })
 })

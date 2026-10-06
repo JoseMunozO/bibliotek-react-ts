@@ -40,12 +40,12 @@ export function notificationTypeLabel(type: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1)
 }
 
-export type BookOrder = 'titulo' | 'autor' | 'disponibles'
+export type BookOrder = 'titel' | 'forfattare' | 'tillgangliga'
 
 export const bookOrderLabel: Record<BookOrder, string> = {
-  titulo: 'Título (A–Z)',
-  autor: 'Autor (A–Z)',
-  disponibles: 'Más ejemplares disponibles',
+  titel: 'Título (A–Z)',
+  forfattare: 'Autor (A–Z)',
+  tillgangliga: 'Más ejemplares disponibles',
 }
 
 export const isBookOrder = (value: string | null): value is BookOrder => value !== null && value in bookOrderLabel
@@ -60,9 +60,9 @@ export function sortBooks<T extends { title: string; authors: string; availableC
 ): T[] {
   const byTitle = (a: T, b: T) => collator.compare(a.title, b.title)
   const compare: Record<BookOrder, (a: T, b: T) => number> = {
-    titulo: byTitle,
-    autor: (a, b) => collator.compare(a.authors, b.authors) || byTitle(a, b),
-    disponibles: (a, b) => b.availableCopies - a.availableCopies || byTitle(a, b),
+    titel: byTitle,
+    forfattare: (a, b) => collator.compare(a.authors, b.authors) || byTitle(a, b),
+    tillgangliga: (a, b) => b.availableCopies - a.availableCopies || byTitle(a, b),
   }
   return books.toSorted(compare[order])
 }

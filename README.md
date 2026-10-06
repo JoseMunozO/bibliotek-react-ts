@@ -8,9 +8,9 @@ Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScrip
 
 | Böcker (ljust läge) | Bok med recensioner (mörkt läge) |
 |---|---|
-| ![Boklistan med sökning, sortering och filter](docs/screenshots/libros.png) | ![Detaljsida för en bok med recensioner](docs/screenshots/detalle-libro.png) |
+| ![Boklistan med sökning, sortering och filter](docs/screenshots/bocker.png) | ![Detaljsida för en bok med recensioner](docs/screenshots/bokdetalj.png) |
 | **Mest utlånade (ljust läge)** | **Medlemsprofil (mörkt läge)** |
-| ![Topplista över mest utlånade böcker med stapeldiagram](docs/screenshots/mas-prestados.png) | ![Medlemslista och profil med lån och böter](docs/screenshots/socio.png) |
+| ![Topplista över mest utlånade böcker med stapeldiagram](docs/screenshots/mest-utlanade.png) | ![Medlemslista och profil med lån och böter](docs/screenshots/medlem.png) |
 
 ## Funktioner
 
@@ -103,16 +103,16 @@ Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsar
 
 | Adress | Vy |
 |---|---|
-| `/libros` | Böcker (sökning, sortering, filter och sida sparas i `?q=`, `?orden=`, `?disponibles=1` och `?pagina=`) |
-| `/libros/:id` | Bokens detaljer och recensioner |
-| `/mas-prestados` | Mest utlånade (`?top=5\|10\|20\|50`) |
-| `/mi-cuenta` | Mitt konto (rollen Medlem) |
-| `/socios`, `/socios/:id` | Medlemmar och en medlems profil |
-| `/socios/:id/editar` | Redigera medlem (administratör) |
-| `/prestamos` | Lån |
-| `/notificaciones` | Aviseringar (`?socio=` väljer medlem) |
+| `/bocker` | Böcker (sökning, sortering, filter och sida sparas i `?q=`, `?sortering=`, `?tillgangliga=1` och `?sida=`) |
+| `/bocker/:id` | Bokens detaljer och recensioner |
+| `/mest-utlanade` | Mest utlånade (`?top=5\|10\|20\|50`) |
+| `/mitt-konto` | Mitt konto (rollen Medlem) |
+| `/medlemmar`, `/medlemmar/:id` | Medlemmar och en medlems profil |
+| `/medlemmar/:id/redigera` | Redigera medlem (administratör) |
+| `/lan` | Lån |
+| `/aviseringar` | Aviseringar (`?medlem=` väljer medlem) |
 
-Om rollen inte har tillgång till en adress skickas man till `/libros`.
+Om rollen inte har tillgång till en adress skickas man till `/bocker`.
 
 > Eftersom det är en SPA måste webbservern skicka `index.html` för alla okända sökvägar. Under utveckling sköter Vite det, och på Vercel gör `vercel.json` det (se [Driftsättning](#driftsättning)).
 

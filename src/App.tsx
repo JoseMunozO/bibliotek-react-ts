@@ -19,16 +19,16 @@ function App() {
 
   // Pestañas visibles según el rol (mismo reparto que el menú de consola)
   const tabs = [
-    { to: '/libros', label: 'Libros', visible: true },
-    { to: '/mas-prestados', label: 'Más prestados', visible: true },
-    { to: '/mi-cuenta', label: 'Mi cuenta', visible: isUser },
-    { to: '/socios', label: 'Socios', visible: can.viewMembers },
-    { to: '/prestamos', label: 'Préstamos', visible: can.manageLoans },
-    { to: '/notificaciones', label: 'Notificaciones', visible: can.manageNotifications },
+    { to: '/bocker', label: 'Libros', visible: true },
+    { to: '/mest-utlanade', label: 'Más prestados', visible: true },
+    { to: '/mitt-konto', label: 'Mi cuenta', visible: isUser },
+    { to: '/medlemmar', label: 'Socios', visible: can.viewMembers },
+    { to: '/lan', label: 'Préstamos', visible: can.manageLoans },
+    { to: '/aviseringar', label: 'Notificaciones', visible: can.manageNotifications },
   ].filter((tab) => tab.visible)
 
   // Una ruta no permitida para el rol actual redirige a Libros
-  const only = (allowed: boolean, element: ReactElement) => (allowed ? element : <Navigate to="/libros" replace />)
+  const only = (allowed: boolean, element: ReactElement) => (allowed ? element : <Navigate to="/bocker" replace />)
 
   return (
     <div className="min-h-screen bg-page">
@@ -60,17 +60,17 @@ function App() {
       </header>
       <main className="mx-auto max-w-5xl px-4 py-6">
         <Routes>
-          <Route index element={<Navigate to="/libros" replace />} />
-          <Route path="libros" element={<BooksPage />} />
-          <Route path="libros/:id" element={<BookDetailPage />} />
-          <Route path="mas-prestados" element={<MostBorrowedPage />} />
-          <Route path="mi-cuenta" element={only(isUser, <MyAccountPage />)} />
-          <Route path="mi-cuenta/editar" element={only(isUser, <EditMyAccountPage />)} />
-          <Route path="socios" element={only(can.viewMembers, <MembersPage />)} />
-          <Route path="socios/:id" element={only(can.viewMembers, <MembersPage />)} />
-          <Route path="socios/:id/editar" element={only(can.manageMembers, <EditMemberRoute />)} />
-          <Route path="prestamos" element={only(can.manageLoans, <LoansPage />)} />
-          <Route path="notificaciones" element={only(can.manageNotifications, <NotificationsPage />)} />
+          <Route index element={<Navigate to="/bocker" replace />} />
+          <Route path="bocker" element={<BooksPage />} />
+          <Route path="bocker/:id" element={<BookDetailPage />} />
+          <Route path="mest-utlanade" element={<MostBorrowedPage />} />
+          <Route path="mitt-konto" element={only(isUser, <MyAccountPage />)} />
+          <Route path="mitt-konto/redigera" element={only(isUser, <EditMyAccountPage />)} />
+          <Route path="medlemmar" element={only(can.viewMembers, <MembersPage />)} />
+          <Route path="medlemmar/:id" element={only(can.viewMembers, <MembersPage />)} />
+          <Route path="medlemmar/:id/redigera" element={only(can.manageMembers, <EditMemberRoute />)} />
+          <Route path="lan" element={only(can.manageLoans, <LoansPage />)} />
+          <Route path="aviseringar" element={only(can.manageNotifications, <NotificationsPage />)} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

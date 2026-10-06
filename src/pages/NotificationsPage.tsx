@@ -9,7 +9,7 @@ import { parseId } from '../navigation'
 export default function NotificationsPage() {
   const [members, setMembers] = useState<MemberDTO[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
-  const memberId = parseId(searchParams.get('socio'))
+  const memberId = parseId(searchParams.get('medlem'))
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function NotificationsPage() {
         Socio
         <Select
           value={memberId ?? ''}
-          onChange={(e) => setSearchParams(e.target.value ? { socio: e.target.value } : {})}
+          onChange={(e) => setSearchParams(e.target.value ? { medlem: e.target.value } : {})}
         >
           <option value="">Selecciona un socio...</option>
           {members.map((m) => (

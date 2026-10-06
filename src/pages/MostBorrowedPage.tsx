@@ -55,7 +55,7 @@ export default function MostBorrowedPage() {
           {stats.map((s, index) => (
             <li key={s.bookId}>
               <Link
-                to={`/libros/${s.bookId}`}
+                to={`/bocker/${s.bookId}`}
                 title={`${s.title}: ${s.loanCount} ${s.loanCount === 1 ? 'préstamo' : 'préstamos'}`}
                 className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-2 rounded-md px-2 py-2 text-left hover:bg-surface-alt sm:grid-cols-[2rem_minmax(0,16rem)_minmax(0,1fr)]"
               >

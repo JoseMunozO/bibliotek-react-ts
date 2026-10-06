@@ -16,7 +16,7 @@ const splitList = (value: string) =>
     .map((s) => s.trim())
     .filter(Boolean)
 
-/** Ruta /libros/:id */
+/** Ruta /bocker/:id */
 export default function BookDetailPage() {
   const bookId = parseId(useParams().id)
   if (bookId === null) return <NotFoundPage message="Ese libro no existe." />
@@ -25,7 +25,7 @@ export default function BookDetailPage() {
 }
 
 function BookDetail({ bookId }: { bookId: number }) {
-  const goBack = useGoBack('/libros')
+  const goBack = useGoBack('/bocker')
   const [book, setBook] = useState<BookDetailsDTO | null>(null)
   const [reviews, setReviews] = useState<ReviewDTO[]>([])
   const [error, setError] = useState<string | null>(null)

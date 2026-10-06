@@ -35,7 +35,7 @@ const row = async (title: string) => (await screen.findByText(title, { selector:
 
 describe('LoansPage', () => {
   it('marca los préstamos vencidos y solo deja prorrogar los que están a tiempo', async () => {
-    renderApp('/prestamos', { role: 'librarian' })
+    renderApp('/lan', { role: 'librarian' })
 
     const late = within(await row('Wild Ice of Dreams'))
     expect(late.getByText('Vencido 2020-01-15')).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('LoansPage', () => {
 
   it('prorroga los días indicados', async () => {
     const user = userEvent.setup()
-    renderApp('/prestamos', { role: 'librarian' })
+    renderApp('/lan', { role: 'librarian' })
 
     const ok = within(await row('Ancient Fire Reborn'))
     await user.clear(ok.getByLabelText('Días de prórroga'))
@@ -64,7 +64,7 @@ describe('LoansPage', () => {
 
   it('al devolver con retraso muestra la multa', async () => {
     const user = userEvent.setup()
-    renderApp('/prestamos', { role: 'librarian' })
+    renderApp('/lan', { role: 'librarian' })
 
     await user.click(within(await row('Wild Ice of Dreams')).getByRole('button', { name: 'Devolver' }))
 

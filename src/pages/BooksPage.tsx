@@ -13,16 +13,16 @@ const PAGE_SIZE = 20
 /**
  * La API no permite combinar search, available y sort, así que la búsqueda se hace
  * en el servidor y el filtro y el orden en el navegador (GET /books no pagina).
- * La paginación también es local. Todo vive en la URL (?q=&disponibles=1&orden=&pagina=)
+ * La paginación también es local. Todo vive en la URL (?q=&tillgangliga=1&sortering=&sida=)
  * para conservarlo al volver del detalle.
  */
 export default function BooksPage() {
   const [books, setBooks] = useState<BookDTO[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
   const search = searchParams.get('q') ?? ''
-  const onlyAvailable = searchParams.get('disponibles') === '1'
-  const orderParam = searchParams.get('orden')
-  const order: BookOrder = isBookOrder(orderParam) ? orderParam : 'titulo'
+  const onlyAvailable = searchParams.get('tillgangliga') === '1'
+  const orderParam = searchParams.get('sortering')
+  const order: BookOrder = isBookOrder(orderParam) ? orderParam : 'titel'
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -33,7 +33,7 @@ export default function BooksPage() {
         const next = new URLSearchParams(prev)
         if (value) next.set(key, value)
         else next.delete(key)
-        next.delete('pagina')
+        next.delete('sida')
         return next
       },
       { replace: true },
@@ -44,8 +44,8 @@ export default function BooksPage() {
   function goToPage(page: number) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      if (page > 1) next.set('pagina', String(page))
-      else next.delete('pagina')
+      if (page > 1) next.set('sida', String(page))
+      else next.delete('sida')
       return next
     })
     window.scrollTo({ top: 0 })
@@ -73,7 +73,7 @@ export default function BooksPage() {
     () => sortBooks(onlyAvailable ? books.filter((b) => b.availableCopies > 0) : books, order),
     [books, onlyAvailable, order],
   )
-  const { items: pageBooks, page, totalPages, start } = paginate(visible, Number(searchParams.get('pagina')), PAGE_SIZE)
+  const { items: pageBooks, page, totalPages, start } = paginate(visible, Number(searchParams.get('sida')), PAGE_SIZE)
   const total =
     visible.length === books.length
       ? `${books.length} ${books.length === 1 ? 'libro' : 'libros'}`
@@ -92,7 +92,7 @@ export default function BooksPage() {
         />
         <Select
           value={order}
-          onChange={(e) => setParam('orden', e.target.value === 'titulo' ? null : e.target.value)}
+          onChange={(e) => setParam('sortering', e.target.value === 'titel' ? null : e.target.value)}
           aria-label="Ordenar por"
         >
           {(Object.keys(bookOrderLabel) as BookOrder[]).map((o) => (
@@ -105,7 +105,7 @@ export default function BooksPage() {
           <input
             type="checkbox"
             checked={onlyAvailable}
-            onChange={(e) => setParam('disponibles', e.target.checked ? '1' : null)}
+            onChange={(e) => setParam('tillgangliga', e.target.checked ? '1' : null)}
           />
           Solo disponibles
         </label>
@@ -131,7 +131,7 @@ export default function BooksPage() {
           {pageBooks.map((book) => (
             <li key={book.id}>
               <Link
-                to={`/libros/${book.id}`}
+                to={`/bocker/${book.id}`}
                 className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-surface-alt"
               >
                 <div>

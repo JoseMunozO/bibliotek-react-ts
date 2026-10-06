@@ -85,20 +85,20 @@ describe('sortBooks', () => {
   const ids = (list: typeof books) => list.map((b) => b.id)
 
   it('por título ignora tildes y mayúsculas y ordena los números de forma natural', () => {
-    expect(ids(sortBooks(books, 'titulo'))).toEqual([4, 2, 3, 1])
+    expect(ids(sortBooks(books, 'titel'))).toEqual([4, 2, 3, 1])
   })
 
   it('por autor, y a igualdad de autor por título', () => {
-    expect(ids(sortBooks(books, 'autor'))).toEqual([2, 3, 4, 1])
+    expect(ids(sortBooks(books, 'forfattare'))).toEqual([2, 3, 4, 1])
   })
 
   it('por ejemplares disponibles de más a menos, y a igualdad por título', () => {
-    expect(ids(sortBooks(books, 'disponibles'))).toEqual([4, 2, 3, 1])
+    expect(ids(sortBooks(books, 'tillgangliga'))).toEqual([4, 2, 3, 1])
   })
 
   it('no modifica la lista original', () => {
     const copy = [...books]
-    sortBooks(books, 'autor')
+    sortBooks(books, 'forfattare')
     expect(books).toEqual(copy)
   })
 })
