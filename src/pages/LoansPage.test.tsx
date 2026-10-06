@@ -70,4 +70,17 @@ describe('LoansPage', () => {
 
     expect(await screen.findByText('"Wild Ice of Dreams" återlämnad för sent. Böter: 4.00')).toBeInTheDocument()
   })
+
+  it('laddar om lånen och formulärets lediga böcker efter en återlämning', async () => {
+    const user = userEvent.setup()
+    renderApp('/lan', { role: 'librarian' })
+    await user.click(within(await row('Wild Ice of Dreams')).getByRole('button', { name: 'Återlämna' }))
+    await screen.findByText(/återlämnad för sent/)
+
+    const urls = fetchMock.mock.calls.map(([url]) => url)
+    const afterReturn = urls.slice(urls.indexOf('/api/loans/2/return') + 1)
+    expect(afterReturn).toEqual(
+      expect.arrayContaining(['/api/loans', '/api/loans/overdue', '/api/books?available=true', '/api/members']),
+    )
+  })
 })

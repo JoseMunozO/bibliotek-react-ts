@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { json, mockFetch, sentBody } from '../test/fetch'
 import { renderWithSession } from '../test/render'
 import NewReviewForm from './NewReviewForm'
@@ -13,7 +13,7 @@ const members = [
 describe('NewReviewForm', () => {
   it('rollen Medlem utan vald medlem: visar inte formuläret', () => {
     mockFetch(() => json([]))
-    renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', null)
+    renderWithSession(<NewReviewForm bookId={5} />, 'user', null)
 
     expect(screen.getByText(/Välj vem du är/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Publicera recension' })).not.toBeInTheDocument()
@@ -22,8 +22,7 @@ describe('NewReviewForm', () => {
   it('rollen Medlem: recenserar som sessionens medlem, utan väljare', async () => {
     const user = userEvent.setup()
     const fetchMock = mockFetch(() => json({ id: 1 }, 201))
-    const onCreated = vi.fn()
-    renderWithSession(<NewReviewForm bookId={5} onCreated={onCreated} />, 'user', 7)
+    renderWithSession(<NewReviewForm bookId={5} />, 'user', 7)
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '4 stjärnor' }))
@@ -33,13 +32,12 @@ describe('NewReviewForm', () => {
     expect(await screen.findByText(/Recensionen har publicerats/)).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith('/api/books/5/reviews', expect.objectContaining({ method: 'POST' }))
     expect(sentBody(fetchMock)).toEqual({ memberId: 7, rating: 4, comment: 'Mycket bra' })
-    expect(onCreated).toHaveBeenCalledOnce()
   })
 
   it('skickar inget om betyg saknas', async () => {
     const user = userEvent.setup()
     const fetchMock = mockFetch(() => json({}))
-    renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', 7)
+    renderWithSession(<NewReviewForm bookId={5} />, 'user', 7)
 
     await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'Utan stjärnor')
     await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
@@ -55,8 +53,7 @@ describe('NewReviewForm', () => {
         ? json({ status: 409, message: 'Medlemmen har redan recenserat den här boken.' }, 409)
         : json(members),
     )
-    const onCreated = vi.fn()
-    renderWithSession(<NewReviewForm bookId={5} onCreated={onCreated} />, 'librarian')
+    renderWithSession(<NewReviewForm bookId={5} />, 'librarian')
 
     await user.selectOptions(await screen.findByRole('combobox'), await screen.findByRole('option', { name: 'Harper Thomas' }))
     await user.click(screen.getByRole('button', { name: '5 stjärnor' }))
@@ -65,14 +62,13 @@ describe('NewReviewForm', () => {
 
     expect(await screen.findByText('Medlemmen har redan recenserat den här boken.')).toBeInTheDocument()
     expect(screen.queryByText(/Recensionen har publicerats/)).not.toBeInTheDocument()
-    expect(onCreated).not.toHaveBeenCalled()
   })
 
   it('läser upp fel och bekräftelser, och tömmer meddelandet vid nytt försök', async () => {
     const user = userEvent.setup()
     let respond: (r: Response) => void = () => {}
     mockFetch(() => new Promise<Response>((resolve) => (respond = resolve)))
-    renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', 7)
+    renderWithSession(<NewReviewForm bookId={5} />, 'user', 7)
 
     // Utan stjärnor: fel i regionen role="alert"
     await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'Hej')

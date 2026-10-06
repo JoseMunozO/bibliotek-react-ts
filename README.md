@@ -47,13 +47,14 @@ Fel- och bekräftelsemeddelanden är *live regions* (`role="alert"` respektive `
 |---|---|
 | Ramverk | React 19 |
 | Routing | React Router 8 |
+| Datahämtning | TanStack Query 5 |
 | Språk | TypeScript 6 |
 | Byggverktyg | Vite 8 |
 | Styling | Tailwind CSS 4 (`@tailwindcss/vite`) |
 | Kodkvalitet | ESLint med `typescript-eslint` och `react-hooks` |
 | Tester | Vitest, Testing Library och jsdom |
 
-Utöver React Router finns inga andra körtidsberoenden: API-klienten bygger på `fetch`.
+Utöver React Router och TanStack Query finns inga andra körtidsberoenden: API-klienten bygger på `fetch`.
 
 ## Kom igång
 
@@ -136,10 +137,12 @@ src/
 ├── api/
 │   ├── types.ts       # TypeScript-typer som speglar API:ts DTO:er
 │   ├── client.ts      # fetch-omslag, ApiError och getErrorMessage
-│   └── index.ts       # booksApi, membersApi, loansApi, notificationsApi
+│   ├── index.ts       # booksApi, membersApi, loansApi, notificationsApi
+│   └── queries.ts     # Frågenycklar, queryOptions och mutationer (TanStack Query)
 ├── components/        # Återanvändbara komponenter (Button, Input, Badge, Alert, Stars …)
 │                      # och formulär (NewMemberForm, NewLoanForm, NewReviewForm …)
 ├── pages/             # En sida per vy: böcker, mest utlånade, mitt konto, medlemmar, lån, aviseringar
+├── queryClient.ts     # QueryClient: nya försök bara vid nätverksfel och 5xx
 ├── navigation.ts      # Hjälpfunktioner för URL:er (parseId, useGoBack)
 ├── session.ts         # Simulerade roller och behörigheter (useSession)
 ├── utils.ts           # Datum, belopp och etiketter för statusar
@@ -147,18 +150,25 @@ src/
 └── index.css          # Endast @import "tailwindcss"
 ```
 
-## Använda API-klienten
+## Hämta och ändra data
 
-Komponenterna anropar aldrig `fetch` direkt, utan går via objekten i `src/api`:
+Komponenterna anropar aldrig `fetch` eller API-objekten direkt, utan går via TanStack Query i `src/api/queries.ts`. Läsningar använder `useQuery` med de färdiga `queryOptions`, så samma data delas i cachen mellan vyerna:
 
 ```ts
-import { booksApi, loansApi, getErrorMessage } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { bookQueries, firstError } from '../api/queries'
 
-const books = await booksApi.list({ search: 'tolkien' })
-const { fineAmount } = await loansApi.return(42)
+const { data: books = [], error } = useQuery(bookQueries.list({ search: 'tolkien' }))
+const message = firstError(error) // null, eller ett meddelande som kan visas direkt
+```
+
+Ändringar använder mutationshookarna. Varje mutation vet vilka nycklar den påverkar och laddar om dem när den är klar, även om den misslyckas. När `mutateAsync` löser sig visar alltså alla vyer redan de nya uppgifterna:
+
+```ts
+const returnLoan = useReturnLoan() // laddar om lån, böcker och medlemmar
 
 try {
-  await loansApi.create({ memberId: 1, bookId: 54 })
+  const { fineAmount } = await returnLoan.mutateAsync(42)
 } catch (error) {
   // Meddelandet kommer från backend och kan visas direkt för användaren
   setError(getErrorMessage(error))
@@ -173,9 +183,9 @@ Testerna ligger bredvid koden de testar (`*.test.ts` / `*.test.tsx`) och körs i
 
 - **API-klienten** – URL:er, metoder och request-kroppar för varje endpoint, felhantering (`ApiError`, nätverksfel, 502 från proxyn).
 - **Logik** – behörigheter per roll, tolkning av id:n i URL:en och hjälpfunktioner.
-- **Komponenter och sidor** – routing och omdirigering per roll, sökning, sortering och filter i URL:en (även att gamla svar ignoreras), lån (förlängning, återlämning med böter), medlemsprofil och recensionsformulär.
+- **Komponenter och sidor** – routing och omdirigering per roll, sökning, sortering och filter i URL:en (även att gamla svar ignoreras), lån (förlängning, återlämning med böter och omladdning av det som påverkas), medlemsprofil och recensionsformulär.
 
-Hjälpfunktionerna finns i `src/test/`: `mockFetch` och `json` för att simulera API:t, `renderApp` för att rendera hela appen på en viss adress och med en viss roll, och `renderWithSession` för en enskild komponent.
+Hjälpfunktionerna finns i `src/test/`: `mockFetch` och `json` för att simulera API:t, `renderApp` för att rendera hela appen på en viss adress och med en viss roll, och `renderWithSession` för en enskild komponent. Båda ger varje test en egen cache utan nya försök.
 
 ## Licens
 

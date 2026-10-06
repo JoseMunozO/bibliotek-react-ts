@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { getErrorMessage, membersApi, type MemberDTO } from '../api'
+import { getErrorMessage, type MemberDTO } from '../api'
+import { useCreateMember } from '../api/queries'
 import Alert from './Alert'
 import Button from './Button'
 import { Input } from './Input'
@@ -13,22 +14,18 @@ interface Props {
 export default function NewMemberForm({ onCreated }: Props) {
   const [form, setForm] = useState(empty)
   const [error, setError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
+  const createMember = useCreateMember()
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
-    setSaving(true)
     try {
-      const member = await membersApi.create(form)
+      const member = await createMember.mutateAsync(form)
       setForm(empty)
-      setError(null)
       onCreated(member)
     } catch (err) {
       setError(getErrorMessage(err))
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -57,8 +54,8 @@ export default function NewMemberForm({ onCreated }: Props) {
         />
       </div>
       <Alert message={error} />
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Sparar …' : 'Skapa medlem'}
+      <Button type="submit" disabled={createMember.isPending}>
+        {createMember.isPending ? 'Sparar …' : 'Skapa medlem'}
       </Button>
     </form>
   )

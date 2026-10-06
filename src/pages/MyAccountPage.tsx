@@ -17,7 +17,7 @@ export default function MyAccountPage() {
 
   return (
     <div className="space-y-6">
-      <MemberDetail key={memberId} memberId={memberId} onChange={() => {}} onEdit={() => navigate('/mitt-konto/redigera')} />
+      <MemberDetail key={memberId} memberId={memberId} onEdit={() => navigate('/mitt-konto/redigera')} />
       <MemberNotifications key={memberId} memberId={memberId} />
     </div>
   )

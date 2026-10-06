@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link, Navigate, useNavigate, useParams } from 'react-router'
-import { getErrorMessage, membersApi, type MemberDTO } from '../api'
+import { firstError, memberQueries } from '../api/queries'
 import Alert from '../components/Alert'
 import Badge from '../components/Badge'
 import MemberDetail from '../components/MemberDetail'
@@ -15,32 +15,14 @@ export default function MembersPage() {
   const { can } = useSession()
   const navigate = useNavigate()
   const selectedId = parseId(useParams().id)
-  const [members, setMembers] = useState<MemberDTO[]>([])
-  const [error, setError] = useState<string | null>(null)
-
-  const loadMembers = useCallback(() => {
-    membersApi
-      .list()
-      .then((data) => {
-        setMembers(data)
-        setError(null)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [])
-
-  useEffect(() => {
-    loadMembers()
-  }, [loadMembers])
+  // Laddas om av sig själv när en medlem skapas, redigeras eller stängs av
+  const { data: members = [], error: membersError } = useQuery(memberQueries.list())
+  const error = firstError(membersError)
 
   return (
     <div className="space-y-6">
       {can.manageMembers && (
-        <NewMemberForm
-          onCreated={(member) => {
-            loadMembers()
-            navigate(`/medlemmar/${member.id}`)
-          }}
-        />
+        <NewMemberForm onCreated={(member) => navigate(`/medlemmar/${member.id}`)} />
       )}
 
       <Alert message={error} />
@@ -71,7 +53,6 @@ export default function MembersPage() {
           <MemberDetail
             key={selectedId}
             memberId={selectedId}
-            onChange={loadMembers}
             onEdit={can.manageMembers ? () => navigate(`/medlemmar/${selectedId}/redigera`) : undefined}
           />
         )}

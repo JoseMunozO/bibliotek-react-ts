@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router'
-import { getErrorMessage, membersApi, type MemberDTO } from '../api'
+import { firstError, memberQueries } from '../api/queries'
 import Alert from '../components/Alert'
 import { Select } from '../components/Input'
 import MemberNotifications from '../components/MemberNotifications'
 import { parseId } from '../navigation'
 
 export default function NotificationsPage() {
-  const [members, setMembers] = useState<MemberDTO[]>([])
+  const { data: members = [], error: membersError } = useQuery(memberQueries.list())
   const [searchParams, setSearchParams] = useSearchParams()
   const memberId = parseId(searchParams.get('medlem'))
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    membersApi
-      .list()
-      .then(setMembers)
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [])
+  const error = firstError(membersError)
 
   return (
     <div className="space-y-6">

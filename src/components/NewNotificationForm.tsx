@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { getErrorMessage, membersApi, notificationsApi, type LoanDTO } from '../api'
+import { useQuery } from '@tanstack/react-query'
+import { useState, type FormEvent } from 'react'
+import { getErrorMessage, type LoanDTO } from '../api'
+import { firstError, memberQueries, useCreateNotification } from '../api/queries'
 import { notificationTypeLabel, notificationTypes } from '../utils'
 import Alert from './Alert'
 import Button from './Button'
@@ -7,33 +9,29 @@ import { Select } from './Input'
 
 interface Props {
   memberId: number
-  onCreated: () => void
 }
 
-export default function NewNotificationForm({ memberId, onCreated }: Props) {
-  const [loans, setLoans] = useState<LoanDTO[]>([])
+const activeLoans = (loans: LoanDTO[]) => loans.filter((l) => l.returnDate === null)
+
+/** Listan med aviseringar laddas om av sig själv när en avisering skickas */
+export default function NewNotificationForm({ memberId }: Props) {
+  const loansQuery = useQuery({ ...memberQueries.loans(memberId), select: activeLoans })
+  const loans = loansQuery.data ?? []
+  const createNotification = useCreateNotification(memberId)
   const [type, setType] = useState(notificationTypes[0])
   const [loanId, setLoanId] = useState('')
   const [message, setMessage] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
-
-  useEffect(() => {
-    membersApi
-      .loans(memberId)
-      .then((loans) => setLoans(loans.filter((l) => l.returnDate === null)))
-      .catch((e) => setError(getErrorMessage(e)))
-  }, [memberId])
+  const error = submitError ?? firstError(loansQuery.error)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
-    setError(null)
+    setSubmitError(null)
     setSuccess(null)
-    setSaving(true)
     try {
-      await notificationsApi.create({
+      await createNotification.mutateAsync({
         memberId,
         type,
         message,
@@ -41,13 +39,9 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
       })
       setMessage('')
       setLoanId('')
-      setError(null)
       setSuccess('Aviseringen har skickats.')
-      onCreated()
     } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setSaving(false)
+      setSubmitError(getErrorMessage(err))
     }
   }
 
@@ -81,8 +75,8 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
       />
       <Alert message={error} />
       <Alert type="success" message={success} />
-      <Button type="submit" disabled={saving}>
-        {saving ? 'Skickar …' : 'Skicka'}
+      <Button type="submit" disabled={createNotification.isPending}>
+        {createNotification.isPending ? 'Skickar …' : 'Skicka'}
       </Button>
     </form>
   )

@@ -39,7 +39,7 @@ beforeEach(() => {
 })
 
 const renderAs = (role: Role, onEdit?: () => void) =>
-  renderWithSession(<MemberDetail memberId={3} onChange={vi.fn()} onEdit={onEdit} />, role, 3)
+  renderWithSession(<MemberDetail memberId={3} onEdit={onEdit} />, role, 3)
 
 describe('MemberDetail', () => {
   it('visar profilen med svenska etiketter', async () => {

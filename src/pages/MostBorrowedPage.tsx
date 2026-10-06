@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router'
-import { booksApi, getErrorMessage, type BookStatisticsDTO } from '../api'
+import { bookQueries, firstError } from '../api/queries'
 import Alert from '../components/Alert'
 import Loading from '../components/Loading'
 import { Select } from '../components/Input'
@@ -8,23 +8,14 @@ import { Select } from '../components/Input'
 const limits = [5, 10, 20, 50]
 
 export default function MostBorrowedPage() {
-  const [stats, setStats] = useState<BookStatisticsDTO[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
   const top = Number(searchParams.get('top'))
   const limit = limits.includes(top) ? top : 10
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    booksApi
-      .mostBorrowed(limit)
-      .then((data) => {
-        setStats(data)
-        setError(null)
-      })
-      .catch((e) => setError(getErrorMessage(e)))
-      .finally(() => setLoading(false))
-  }, [limit])
+  // Den föregående topplistan visas kvar medan den nya laddas
+  const query = useQuery({ ...bookQueries.mostBorrowed(limit), placeholderData: keepPreviousData })
+  const stats = query.data ?? []
+  const loading = query.isPending
+  const error = firstError(query.error)
 
   const max = Math.max(1, ...stats.map((s) => s.loanCount))
 
