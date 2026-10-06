@@ -1,6 +1,6 @@
 interface Props {
   rating: number
-  /** Si se pasa, las estrellas son clicables para elegir la puntuación */
+  /** Om den skickas med går det att klicka på stjärnorna för att välja betyg */
   onChange?: (rating: number) => void
 }
 
@@ -13,26 +13,26 @@ export default function Stars({ rating, onChange }: Props) {
     </span>
   )
 
-  // Solo lectura: una imagen con la puntuación como texto ("3,8 de 5 estrellas")
+  // Endast läsning: en bild med betyget som text ("3,8 av 5 stjärnor")
   if (!onChange)
     return (
-      <span role="img" aria-label={`${rating.toLocaleString('es', { maximumFractionDigits: 1 })} de 5 estrellas`} className="inline-flex">
+      <span role="img" aria-label={`${rating.toLocaleString('sv', { maximumFractionDigits: 1 })} av 5 stjärnor`} className="inline-flex">
         {values.map((value) => (
           <span key={value}>{star(value)}</span>
         ))}
       </span>
     )
 
-  // Selector: cada botón anuncia si es la puntuación elegida (aria-pressed)
+  // Väljare: varje knapp anger om den är det valda betyget (aria-pressed)
   return (
-    <span role="group" aria-label="Puntuación" className="inline-flex">
+    <span role="group" aria-label="Betyg" className="inline-flex">
       {values.map((value) => (
         <button
           key={value}
           type="button"
           onClick={() => onChange(value)}
           aria-pressed={value === rating}
-          aria-label={value === 1 ? '1 estrella' : `${value} estrellas`}
+          aria-label={value === 1 ? '1 stjärna' : `${value} stjärnor`}
           className="text-2xl leading-none"
         >
           {star(value)}

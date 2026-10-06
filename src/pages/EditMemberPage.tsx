@@ -14,7 +14,7 @@ interface Props {
   backLabel?: string
 }
 
-export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 'Volver a socios' }: Props) {
+export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 'Tillbaka till medlemmar' }: Props) {
   const { can } = useSession()
   const [form, setForm] = useState<UpdateMemberRequest | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +32,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!form) return
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     setSaving(true)
     try {
@@ -55,10 +55,10 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
 
       {form && (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-line bg-surface p-5">
-          <h2 className="text-lg font-semibold text-ink">Editar socio</h2>
+          <h2 className="text-lg font-semibold text-ink">Redigera medlem</h2>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nombre">
+            <Field label="Förnamn">
               <Input
                 required
                 value={form.firstName}
@@ -66,7 +66,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
                 className="w-full"
               />
             </Field>
-            <Field label="Apellidos">
+            <Field label="Efternamn">
               <Input
                 required
                 value={form.lastName}
@@ -76,7 +76,7 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
             </Field>
           </div>
 
-          <Field label="Email">
+          <Field label="E-post">
             <Input
               required
               type="email"
@@ -86,12 +86,12 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
             />
           </Field>
 
-          <Field label="Tipo de membresía">
+          <Field label="Medlemskapstyp">
             <Select
               value={form.membershipType}
               onChange={(e) => setForm({ ...form, membershipType: e.target.value as MembershipType })}
               disabled={!can.changeMembershipType}
-              title={can.changeMembershipType ? undefined : 'Solo un administrador puede cambiarlo'}
+              title={can.changeMembershipType ? undefined : 'Endast en administratör kan ändra den'}
               className="w-full disabled:bg-surface-alt disabled:text-muted"
             >
               {(Object.keys(membershipTypeLabel) as MembershipType[]).map((type) => (
@@ -106,10 +106,10 @@ export default function EditMemberPage({ memberId, onBack, onSaved, backLabel = 
 
           <div className="flex gap-2">
             <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar cambios'}
+              {saving ? 'Sparar …' : 'Spara ändringar'}
             </Button>
             <Button type="button" variant="secondary" onClick={onBack}>
-              Cancelar
+              Avbryt
             </Button>
           </div>
         </form>

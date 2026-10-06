@@ -21,7 +21,7 @@ import type {
 export { ApiError, getErrorMessage } from './client'
 export type * from './types'
 
-/** Los filtros no se combinan; prioridad: search > available > sort */
+/** Filtren kan inte kombineras; prioritet: search > available > sort */
 export type BookQuery =
   | { search: string }
   | { available: true }
@@ -57,15 +57,15 @@ export const membersApi = {
 }
 
 export const loansApi = {
-  /** Solo préstamos activos */
+  /** Endast aktiva lån */
   list: () => get<LoanDTO[]>('/loans'),
   overdue: () => get<OverdueLoanDTO[]>('/loans/overdue'),
   get: (id: number) => get<LoanDTO>(`/loans/${id}`),
-  /** Plazo de 14 días */
+  /** Lånetid 14 dagar */
   create: (loan: CreateLoanRequest) => post<LoanDTO>('/loans', loan),
-  /** Multa de 2 por día de retraso */
+  /** Böter på 2 per försenad dag */
   return: (id: number) => post<LoanReturnDTO>(`/loans/${id}/return`),
-  /** No se puede prorrogar un préstamo vencido */
+  /** Ett försenat lån kan inte förlängas */
   extend: (id: number, extraDays: number) => post<LoanDTO>(`/loans/${id}/extend`, { extraDays }),
 }
 

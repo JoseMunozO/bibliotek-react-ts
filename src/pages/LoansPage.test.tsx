@@ -4,13 +4,13 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { json, mockFetch, sentBody } from '../test/fetch'
 import { renderApp } from '../test/render'
 
-// Fechas fijas lejos de hoy para que los tests no dependan del día en que se ejecutan
+// Fasta datum långt från i dag så att testerna inte beror på vilken dag de körs
 const onTime = {
   id: 1,
   bookId: 54,
   bookTitle: 'Ancient Fire Reborn',
   memberId: 52,
-  memberName: 'Prueba Claude',
+  memberName: 'Test Testsson',
   loanDate: '2098-12-25',
   dueDate: '2099-01-08',
   returnDate: null,
@@ -26,7 +26,7 @@ beforeEach(() => {
       return json({ loan: { ...overdue, returnDate: '2020-01-17' }, fineAmount: 4 })
     if (url === '/api/loans') return json([onTime, overdue])
     if (url === '/api/loans/overdue')
-      return json([{ loanId: 2, bookId: 54, bookTitle: overdue.bookTitle, memberId: 52, memberName: 'Prueba Claude', memberEmail: 'p@example.test', dueDate: overdue.dueDate }])
+      return json([{ loanId: 2, bookId: 54, bookTitle: overdue.bookTitle, memberId: 52, memberName: 'Test Testsson', memberEmail: 'p@example.test', dueDate: overdue.dueDate }])
     return json([])
   })
 })
@@ -34,40 +34,40 @@ beforeEach(() => {
 const row = async (title: string) => (await screen.findByText(title, { selector: 'li p' })).closest('li')!
 
 describe('LoansPage', () => {
-  it('marca los préstamos vencidos y solo deja prorrogar los que están a tiempo', async () => {
-    renderApp('/prestamos', { role: 'librarian' })
+  it('markerar försenade lån och låter bara förlänga dem som inte är försenade', async () => {
+    renderApp('/lan', { role: 'librarian' })
 
     const late = within(await row('Wild Ice of Dreams'))
-    expect(late.getByText('Vencido 2020-01-15')).toBeInTheDocument()
-    expect(late.queryByRole('button', { name: 'Prorrogar' })).not.toBeInTheDocument()
+    expect(late.getByText('Försenad 2020-01-15')).toBeInTheDocument()
+    expect(late.queryByRole('button', { name: 'Förläng' })).not.toBeInTheDocument()
 
     const ok = within(await row('Ancient Fire Reborn'))
-    expect(ok.getByText('Vence 2099-01-08')).toBeInTheDocument()
-    expect(ok.getByRole('button', { name: 'Prorrogar' })).toBeInTheDocument()
+    expect(ok.getByText('Förfaller 2099-01-08')).toBeInTheDocument()
+    expect(ok.getByRole('button', { name: 'Förläng' })).toBeInTheDocument()
 
-    expect(screen.getByRole('heading', { name: 'Vencidos (1)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Försenade (1)' })).toBeInTheDocument()
   })
 
-  it('prorroga los días indicados', async () => {
+  it('förlänger med angivet antal dagar', async () => {
     const user = userEvent.setup()
-    renderApp('/prestamos', { role: 'librarian' })
+    renderApp('/lan', { role: 'librarian' })
 
     const ok = within(await row('Ancient Fire Reborn'))
-    await user.clear(ok.getByLabelText('Días de prórroga'))
-    await user.type(ok.getByLabelText('Días de prórroga'), '7')
-    await user.click(ok.getByRole('button', { name: 'Prorrogar' }))
+    await user.clear(ok.getByLabelText('Dagar att förlänga'))
+    await user.type(ok.getByLabelText('Dagar att förlänga'), '7')
+    await user.click(ok.getByRole('button', { name: 'Förläng' }))
 
-    expect(await screen.findByText('"Ancient Fire Reborn" prorrogado hasta 2099-01-15.')).toBeInTheDocument()
+    expect(await screen.findByText('"Ancient Fire Reborn" förlängd till 2099-01-15.')).toBeInTheDocument()
     const call = fetchMock.mock.calls.findIndex(([url]) => url === '/api/loans/1/extend')
     expect(sentBody(fetchMock, call)).toEqual({ extraDays: 7 })
   })
 
-  it('al devolver con retraso muestra la multa', async () => {
+  it('visar böterna när en bok lämnas tillbaka för sent', async () => {
     const user = userEvent.setup()
-    renderApp('/prestamos', { role: 'librarian' })
+    renderApp('/lan', { role: 'librarian' })
 
-    await user.click(within(await row('Wild Ice of Dreams')).getByRole('button', { name: 'Devolver' }))
+    await user.click(within(await row('Wild Ice of Dreams')).getByRole('button', { name: 'Återlämna' }))
 
-    expect(await screen.findByText('"Wild Ice of Dreams" devuelto con retraso. Multa: 4.00')).toBeInTheDocument()
+    expect(await screen.findByText('"Wild Ice of Dreams" återlämnad för sent. Böter: 4.00')).toBeInTheDocument()
   })
 })

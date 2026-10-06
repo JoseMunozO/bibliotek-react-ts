@@ -6,14 +6,14 @@ import SessionProvider from '../components/SessionProvider'
 import { permissionsFor, SessionContext, type Role, type Session } from '../session'
 import { vi } from 'vitest'
 
-/** Muestra la ruta actual para poder comprobar redirecciones */
+/** Visar aktuell sökväg så att omdirigeringar kan kontrolleras */
 function CurrentLocation() {
   const location = useLocation()
-  // Un <div> y no <output>: <output> tiene role="status" y se confundiría con los avisos
+  // En <div> och inte <output>: <output> har role="status" och skulle förväxlas med meddelandena
   return <div data-testid="location">{location.pathname + location.search}</div>
 }
 
-/** Renderiza la app completa en `path` con el rol (y socio) guardados en la sesión */
+/** Renderar hela appen på `path` med rollen (och medlemmen) sparad i sessionen */
 export function renderApp(path: string, session?: { role: Role; memberId?: number | null }) {
   if (session) localStorage.setItem('bibliotek.session', JSON.stringify({ memberId: null, ...session }))
   return render(
@@ -26,7 +26,7 @@ export function renderApp(path: string, session?: { role: Role; memberId?: numbe
   )
 }
 
-/** Renderiza un componente suelto con una sesión fija y un router en memoria */
+/** Renderar en enskild komponent med en fast session och en router i minnet */
 export function renderWithSession(ui: ReactElement, role: Role, memberId: number | null = null) {
   const session: Session = { role, memberId, can: permissionsFor(role), setRole: vi.fn(), setMemberId: vi.fn() }
   return render(

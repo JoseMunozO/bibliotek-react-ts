@@ -14,7 +14,7 @@ const member = {
 }
 
 beforeEach(() => {
-  // Un socio concreto y listas vacías para todo lo demás
+  // En bestämd medlem och tomma listor för allt annat
   mockFetch((url) => (url === '/api/members/3' ? json(member) : json([])))
 })
 
@@ -25,60 +25,60 @@ const tabs = () =>
 
 const location = () => screen.getByTestId('location').textContent
 
-describe('rutas', () => {
-  it('redirige la raíz a /libros', async () => {
+describe('sökvägar', () => {
+  it('skickar roten vidare till /bocker', async () => {
     renderApp('/')
-    expect(await screen.findByPlaceholderText('Buscar por título o autor...')).toBeInTheDocument()
-    expect(location()).toBe('/libros')
+    expect(await screen.findByPlaceholderText('Sök på titel eller författare …')).toBeInTheDocument()
+    expect(location()).toBe('/bocker')
   })
 
-  it('muestra una página 404 para rutas desconocidas', () => {
-    renderApp('/esto/no/existe')
-    expect(screen.getByText('Esta página no existe.')).toBeInTheDocument()
+  it('visar en 404-sida för okända sökvägar', () => {
+    renderApp('/det/har/finns/inte')
+    expect(screen.getByText('Sidan finns inte.')).toBeInTheDocument()
   })
 
-  it('muestra 404 para un id de libro no válido sin llamar a la API', () => {
+  it('visar 404 för ett ogiltigt bok-id utan att anropa API:t', () => {
     const fetchMock = mockFetch(() => json([]))
-    renderApp('/libros/abc', { role: 'admin' })
-    expect(screen.getByText('Ese libro no existe.')).toBeInTheDocument()
+    renderApp('/bocker/abc', { role: 'admin' })
+    expect(screen.getByText('Den boken finns inte.')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).startsWith('/api/books/'))).toBe(false)
   })
 })
 
-describe('roles', () => {
-  it('Administrador: ve todas las pestañas de gestión y puede editar socios', async () => {
-    renderApp('/socios/3/editar', { role: 'admin' })
+describe('roller', () => {
+  it('Administratör: ser alla administrationsflikar och kan redigera medlemmar', async () => {
+    renderApp('/medlemmar/3/redigera', { role: 'admin' })
 
-    expect(tabs()).toEqual(['Libros', 'Más prestados', 'Socios', 'Préstamos', 'Notificaciones'])
+    expect(tabs()).toEqual(['Böcker', 'Mest utlånade', 'Medlemmar', 'Lån', 'Aviseringar'])
     expect(await screen.findByDisplayValue('Oliver')).toBeInTheDocument()
-    expect(screen.getByLabelText('Tipo de membresía')).toBeEnabled()
-    expect(location()).toBe('/socios/3/editar')
+    expect(screen.getByLabelText('Medlemskapstyp')).toBeEnabled()
+    expect(location()).toBe('/medlemmar/3/redigera')
   })
 
-  it('Bibliotecario: no puede editar socios y se le redirige a /libros', () => {
-    renderApp('/socios/3/editar', { role: 'librarian' })
+  it('Bibliotekarie: kan inte redigera medlemmar och skickas till /bocker', () => {
+    renderApp('/medlemmar/3/redigera', { role: 'librarian' })
 
-    expect(tabs()).toEqual(['Libros', 'Más prestados', 'Socios', 'Préstamos', 'Notificaciones'])
-    expect(location()).toBe('/libros')
+    expect(tabs()).toEqual(['Böcker', 'Mest utlånade', 'Medlemmar', 'Lån', 'Aviseringar'])
+    expect(location()).toBe('/bocker')
   })
 
-  it('Socio: solo ve sus pestañas y no puede entrar en préstamos', () => {
-    renderApp('/prestamos', { role: 'user', memberId: 3 })
+  it('Medlem: ser bara sina flikar och kommer inte åt lån', () => {
+    renderApp('/lan', { role: 'user', memberId: 3 })
 
-    expect(tabs()).toEqual(['Libros', 'Más prestados', 'Mi cuenta'])
-    expect(location()).toBe('/libros')
+    expect(tabs()).toEqual(['Böcker', 'Mest utlånade', 'Mitt konto'])
+    expect(location()).toBe('/bocker')
   })
 
-  it('Socio: edita su cuenta sin poder cambiar el tipo de membresía', async () => {
-    renderApp('/mi-cuenta/editar', { role: 'user', memberId: 3 })
+  it('Medlem: redigerar sitt konto men kan inte ändra medlemskapstyp', async () => {
+    renderApp('/mitt-konto/redigera', { role: 'user', memberId: 3 })
 
     expect(await screen.findByDisplayValue('Oliver')).toBeInTheDocument()
-    expect(screen.getByLabelText('Tipo de membresía')).toBeDisabled()
-    expect(screen.getByRole('button', { name: '← Volver a mi cuenta' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Medlemskapstyp')).toBeDisabled()
+    expect(screen.getByRole('button', { name: '← Tillbaka till mitt konto' })).toBeInTheDocument()
   })
 
-  it('Socio sin elegir: pide que se identifique', () => {
-    renderApp('/mi-cuenta', { role: 'user' })
-    expect(screen.getByText(/Elige quién eres/)).toBeInTheDocument()
+  it('Medlem som inte valts: ombeds välja vem man är', () => {
+    renderApp('/mitt-konto', { role: 'user' })
+    expect(screen.getByText(/Välj vem du är/)).toBeInTheDocument()
   })
 })

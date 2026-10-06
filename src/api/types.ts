@@ -1,4 +1,4 @@
-// Tipos de la API de bibliotek-api. Las fechas llegan como "YYYY-MM-DD".
+// Typer för bibliotek-api. Datum kommer som "YYYY-MM-DD".
 
 export type MemberStatus = 'active' | 'suspended' | 'expired'
 export type MembershipType = 'standard' | 'premium' | 'basic'
@@ -6,7 +6,7 @@ export type FineStatus = 'pending' | 'paid'
 // snake_case: loan_reminder, overdue_warning, account_suspended, pending_fine...
 export type NotificationType = string
 
-// Libros
+// Böcker
 
 export interface BookDTO {
   id: number
@@ -25,9 +25,9 @@ export interface BookDetailsDTO {
   summary: string
   language: string
   pageCount: number | null
-  /** Separados por coma */
+  /** Kommaseparerade */
   authors: string
-  /** Separadas por coma */
+  /** Kommaseparerade */
   categories: string
 }
 
@@ -47,7 +47,7 @@ export interface ReviewDTO {
   reviewDate: string
 }
 
-// Socios
+// Medlemmar
 
 export interface MemberDTO {
   id: number
@@ -74,7 +74,7 @@ export interface MemberProfileDTO {
   unpaidFineAmount: number
 }
 
-// Préstamos
+// Lån
 
 export interface LoanDTO {
   id: number
@@ -89,7 +89,7 @@ export interface LoanDTO {
 
 export interface LoanReturnDTO {
   loan: LoanDTO
-  /** 0 si se devolvió a tiempo */
+  /** 0 om boken lämnades tillbaka i tid */
   fineAmount: number
 }
 
@@ -113,7 +113,7 @@ export interface FineDTO {
   status: FineStatus
 }
 
-// Notificaciones
+// Aviseringar
 
 export interface NotificationDTO {
   id: number
@@ -125,7 +125,7 @@ export interface NotificationDTO {
   read: boolean
 }
 
-// Cuerpos de las peticiones
+// Request-kroppar
 
 export interface CreateReviewRequest {
   memberId: number
@@ -156,7 +156,7 @@ export interface CreateNotificationRequest {
   message: string
 }
 
-/** Forma de todas las respuestas de error del backend */
+/** Formen på alla felsvar från backend */
 export interface ApiErrorBody {
   status: number
   message: string

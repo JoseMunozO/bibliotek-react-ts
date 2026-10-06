@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="sv">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -7,7 +7,7 @@
     <title>Bibliotek</title>
     <meta name="color-scheme" content="light dark" />
     <script>
-      // Aplica el tema antes de pintar para evitar un destello en claro (misma lógica que src/theme.ts)
+      // Sätter temat innan sidan ritas så att den inte blinkar till i ljust läge (samma logik som src/theme.ts)
       try {
         const theme = localStorage.getItem('bibliotek.theme')
         const dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)

@@ -11,41 +11,41 @@ import { bookOrderLabel, isBookOrder, paginate, sortBooks, type BookOrder } from
 const PAGE_SIZE = 20
 
 /**
- * La API no permite combinar search, available y sort, así que la búsqueda se hace
- * en el servidor y el filtro y el orden en el navegador (GET /books no pagina).
- * La paginación también es local. Todo vive en la URL (?q=&disponibles=1&orden=&pagina=)
- * para conservarlo al volver del detalle.
+ * API:t kan inte kombinera search, available och sort, så sökningen görs på servern
+ * och filtret och sorteringen i webbläsaren (GET /books har ingen sidindelning).
+ * Sidindelningen är också lokal. Allt ligger i URL:en (?q=&tillgangliga=1&sortering=&sida=)
+ * så att det finns kvar när man kommer tillbaka från detaljsidan.
  */
 export default function BooksPage() {
   const [books, setBooks] = useState<BookDTO[]>([])
   const [searchParams, setSearchParams] = useSearchParams()
   const search = searchParams.get('q') ?? ''
-  const onlyAvailable = searchParams.get('disponibles') === '1'
-  const orderParam = searchParams.get('orden')
-  const order: BookOrder = isBookOrder(orderParam) ? orderParam : 'titulo'
+  const onlyAvailable = searchParams.get('tillgangliga') === '1'
+  const orderParam = searchParams.get('sortering')
+  const order: BookOrder = isBookOrder(orderParam) ? orderParam : 'titel'
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  /** Cambia un filtro de la URL conservando los demás y vuelve a la primera página */
+  /** Ändrar ett filter i URL:en, behåller de andra och går tillbaka till första sidan */
   function setParam(key: string, value: string | null) {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
         if (value) next.set(key, value)
         else next.delete(key)
-        next.delete('pagina')
+        next.delete('sida')
         return next
       },
       { replace: true },
     )
   }
 
-  /** Cada página es una entrada del historial: "atrás" vuelve a la anterior */
+  /** Varje sida är en post i historiken: "bakåt" går till föregående sida */
   function goToPage(page: number) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev)
-      if (page > 1) next.set('pagina', String(page))
-      else next.delete('pagina')
+      if (page > 1) next.set('sida', String(page))
+      else next.delete('sida')
       return next
     })
     window.scrollTo({ top: 0 })
@@ -53,7 +53,7 @@ export default function BooksPage() {
 
   useEffect(() => {
     const term = search.trim()
-    // Ignora respuestas de búsquedas anteriores que lleguen tarde
+    // Ignorerar svar från tidigare sökningar som kommer för sent
     let current = true
     booksApi
       .list(term ? { search: term } : undefined)
@@ -73,11 +73,11 @@ export default function BooksPage() {
     () => sortBooks(onlyAvailable ? books.filter((b) => b.availableCopies > 0) : books, order),
     [books, onlyAvailable, order],
   )
-  const { items: pageBooks, page, totalPages, start } = paginate(visible, Number(searchParams.get('pagina')), PAGE_SIZE)
+  const { items: pageBooks, page, totalPages, start } = paginate(visible, Number(searchParams.get('sida')), PAGE_SIZE)
   const total =
     visible.length === books.length
-      ? `${books.length} ${books.length === 1 ? 'libro' : 'libros'}`
-      : `${visible.length} de ${books.length} libros`
+      ? `${books.length} ${books.length === 1 ? 'bok' : 'böcker'}`
+      : `${visible.length} av ${books.length} böcker`
 
   return (
     <section className="space-y-4">
@@ -86,14 +86,14 @@ export default function BooksPage() {
           type="search"
           value={search}
           onChange={(e) => setParam('q', e.target.value)}
-          placeholder="Buscar por título o autor..."
-          aria-label="Buscar libros"
+          placeholder="Sök på titel eller författare …"
+          aria-label="Sök böcker"
           className="min-w-0 flex-1 basis-64"
         />
         <Select
           value={order}
-          onChange={(e) => setParam('orden', e.target.value === 'titulo' ? null : e.target.value)}
-          aria-label="Ordenar por"
+          onChange={(e) => setParam('sortering', e.target.value === 'titel' ? null : e.target.value)}
+          aria-label="Sortera efter"
         >
           {(Object.keys(bookOrderLabel) as BookOrder[]).map((o) => (
             <option key={o} value={o}>
@@ -105,9 +105,9 @@ export default function BooksPage() {
           <input
             type="checkbox"
             checked={onlyAvailable}
-            onChange={(e) => setParam('disponibles', e.target.checked ? '1' : null)}
+            onChange={(e) => setParam('tillgangliga', e.target.checked ? '1' : null)}
           />
-          Solo disponibles
+          Endast lediga
         </label>
       </div>
 
@@ -123,15 +123,15 @@ export default function BooksPage() {
       {!loading && !error && visible.length === 0 ? (
         <p className="rounded-lg border border-line bg-surface p-4 text-sm text-muted">
           {onlyAvailable && books.length > 0
-            ? 'Ninguno de estos libros tiene ejemplares disponibles.'
-            : 'No hay libros que coincidan con la búsqueda.'}
+            ? 'Ingen av de här böckerna har lediga exemplar.'
+            : 'Inga böcker matchar sökningen.'}
         </p>
       ) : (
         <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {pageBooks.map((book) => (
             <li key={book.id}>
               <Link
-                to={`/libros/${book.id}`}
+                to={`/bocker/${book.id}`}
                 className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-surface-alt"
               >
                 <div>
@@ -139,7 +139,7 @@ export default function BooksPage() {
                   <p className="text-sm text-muted">{book.authors}</p>
                 </div>
                 <Badge color={book.availableCopies > 0 ? 'green' : 'gray'}>
-                  {book.availableCopies} {book.availableCopies === 1 ? 'disponible' : 'disponibles'}
+                  {book.availableCopies} {book.availableCopies === 1 ? 'ledig' : 'lediga'}
                 </Badge>
               </Link>
             </li>

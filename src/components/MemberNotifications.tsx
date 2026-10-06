@@ -9,7 +9,7 @@ import NewNotificationForm from './NewNotificationForm'
 
 interface Props {
   memberId: number
-  /** Muestra el formulario para enviar notificaciones (solo personal) */
+  /** Visar formuläret för att skicka aviseringar (endast personal) */
   canSend?: boolean
 }
 
@@ -23,7 +23,7 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
     membersApi
       .notifications(memberId)
       .then((data) => {
-        // Más recientes primero
+        // Senaste först
         setNotifications(data.toSorted((a, b) => b.sentDate.localeCompare(a.sentDate) || b.id - a.id))
         setError(null)
       })
@@ -51,19 +51,19 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-ink">
-          Notificaciones <Badge color={unread.length ? 'amber' : 'gray'}>{unread.length} sin leer</Badge>
+          Aviseringar <Badge color={unread.length ? 'amber' : 'gray'}>{unread.length} olästa</Badge>
         </h2>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-ink-soft">
             <input type="checkbox" checked={onlyUnread} onChange={(e) => setOnlyUnread(e.target.checked)} />
-            Solo sin leer
+            Endast olästa
           </label>
           <Button
             variant="secondary"
             disabled={unread.length === 0}
             onClick={() => markAsRead(unread.map((n) => n.id))}
           >
-            Marcar todas como leídas
+            Markera alla som lästa
           </Button>
         </div>
       </div>
@@ -73,7 +73,7 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
 
       {!loading && visible.length === 0 ? (
         <p className="text-sm text-muted">
-          {onlyUnread ? 'No hay notificaciones sin leer.' : 'Este socio no tiene notificaciones.'}
+          {onlyUnread ? 'Det finns inga olästa aviseringar.' : 'Den här medlemmen har inga aviseringar.'}
         </p>
       ) : (
         <ul className="space-y-2">
@@ -91,15 +91,15 @@ export default function MemberNotifications({ memberId, canSend = false }: Props
                     {notificationTypeLabel(n.type)}
                   </span>
                   <span className="text-xs text-muted">{n.sentDate}</span>
-                  {n.loanId !== null && <span className="text-xs text-muted">· préstamo #{n.loanId}</span>}
+                  {n.loanId !== null && <span className="text-xs text-muted">· lån #{n.loanId}</span>}
                 </div>
                 <p className="text-sm text-ink-soft">{n.message}</p>
               </div>
               {n.read ? (
-                <Badge>Leída</Badge>
+                <Badge>Läst</Badge>
               ) : (
                 <Button variant="secondary" onClick={() => markAsRead([n.id])}>
-                  Marcar como leída
+                  Markera som läst
                 </Button>
               )}
             </li>

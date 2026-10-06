@@ -10,7 +10,7 @@ import { parseId } from '../navigation'
 import { useSession } from '../session'
 import { memberStatusColor, memberStatusLabel } from '../utils'
 
-/** Rutas /socios y /socios/:id */
+/** Sökvägarna /medlemmar och /medlemmar/:id */
 export default function MembersPage() {
   const { can } = useSession()
   const navigate = useNavigate()
@@ -38,7 +38,7 @@ export default function MembersPage() {
         <NewMemberForm
           onCreated={(member) => {
             loadMembers()
-            navigate(`/socios/${member.id}`)
+            navigate(`/medlemmar/${member.id}`)
           }}
         />
       )}
@@ -50,7 +50,7 @@ export default function MembersPage() {
           {members.map((member) => (
             <li key={member.id}>
               <Link
-                to={`/socios/${member.id}`}
+                to={`/medlemmar/${member.id}`}
                 className={`flex w-full items-center justify-between gap-2 p-3 text-left hover:bg-surface-alt ${
                   member.id === selectedId ? 'bg-indigo-50 dark:bg-indigo-500/15' : ''
                 }`}
@@ -66,13 +66,13 @@ export default function MembersPage() {
         </ul>
 
         {selectedId === null ? (
-          <p className="text-muted">Selecciona un socio para ver su ficha.</p>
+          <p className="text-muted">Välj en medlem för att se profilen.</p>
         ) : (
           <MemberDetail
             key={selectedId}
             memberId={selectedId}
             onChange={loadMembers}
-            onEdit={can.manageMembers ? () => navigate(`/socios/${selectedId}/editar`) : undefined}
+            onEdit={can.manageMembers ? () => navigate(`/medlemmar/${selectedId}/redigera`) : undefined}
           />
         )}
       </div>
@@ -80,11 +80,11 @@ export default function MembersPage() {
   )
 }
 
-/** Ruta /socios/:id/editar (solo administrador) */
+/** Sökvägen /medlemmar/:id/redigera (endast administratör) */
 export function EditMemberRoute() {
   const navigate = useNavigate()
   const memberId = parseId(useParams().id)
-  if (memberId === null) return <Navigate to="/socios" replace />
-  const back = () => navigate(`/socios/${memberId}`)
+  if (memberId === null) return <Navigate to="/medlemmar" replace />
+  const back = () => navigate(`/medlemmar/${memberId}`)
   return <EditMemberPage memberId={memberId} onBack={back} onSaved={back} />
 }

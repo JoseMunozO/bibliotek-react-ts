@@ -20,7 +20,7 @@ export default defineConfig([
     },
   },
   {
-    // Los tests y sus helpers no se recargan con Fast Refresh
+    // Testerna och deras hjälpfunktioner laddas inte om med Fast Refresh
     files: ['src/test/**', '**/*.test.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',

@@ -5,49 +5,49 @@ import Loading from './Loading'
 import Stars from './Stars'
 
 describe('Alert', () => {
-  it('los errores son role="alert" y las confirmaciones role="status"', () => {
+  it('fel är role="alert" och bekräftelser role="status"', () => {
     render(
       <>
-        <Alert message="No quedan ejemplares disponibles." />
-        <Alert type="success" message="Préstamo creado." />
+        <Alert message="Det finns inga lediga exemplar kvar." />
+        <Alert type="success" message="Lånet har skapats." />
       </>,
     )
-    expect(screen.getByRole('alert')).toHaveTextContent('No quedan ejemplares disponibles.')
-    expect(screen.getByRole('status')).toHaveTextContent('Préstamo creado.')
+    expect(screen.getByRole('alert')).toHaveTextContent('Det finns inga lediga exemplar kvar.')
+    expect(screen.getByRole('status')).toHaveTextContent('Lånet har skapats.')
   })
 
-  it('la región existe aunque no haya mensaje, para que el mensaje que llegue después se anuncie', () => {
+  it('regionen finns även utan meddelande, så att ett senare meddelande läses upp', () => {
     const { rerender } = render(<Alert message={null} />)
     const region = screen.getByRole('alert')
     expect(region).toBeEmptyDOMElement()
     expect(region).toHaveClass('sr-only')
 
-    rerender(<Alert message="Libro no encontrado." />)
-    // Es el mismo nodo: solo cambia su contenido
+    rerender(<Alert message="Boken hittades inte." />)
+    // Det är samma nod: bara innehållet ändras
     expect(screen.getByRole('alert')).toBe(region)
-    expect(region).toHaveTextContent('Libro no encontrado.')
+    expect(region).toHaveTextContent('Boken hittades inte.')
     expect(region).not.toHaveClass('sr-only')
   })
 })
 
 describe('Loading', () => {
-  it('se anuncia como estado', () => {
+  it('läses upp som status', () => {
     render(<Loading />)
-    expect(screen.getByRole('status')).toHaveTextContent('Cargando...')
+    expect(screen.getByRole('status')).toHaveTextContent('Laddar …')
   })
 })
 
 describe('Stars', () => {
-  it('en modo lectura se anuncia la puntuación como texto', () => {
+  it('i läsläge läses betyget upp som text', () => {
     render(<Stars rating={3.75} />)
-    expect(screen.getByRole('img', { name: '3,8 de 5 estrellas' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '3,8 av 5 stjärnor' })).toBeInTheDocument()
   })
 
-  it('en el selector indica qué puntuación está elegida', () => {
+  it('i väljaren anges vilket betyg som är valt', () => {
     render(<Stars rating={4} onChange={() => {}} />)
-    const group = screen.getByRole('group', { name: 'Puntuación' })
+    const group = screen.getByRole('group', { name: 'Betyg' })
     expect(group).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '4 estrellas' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: '1 estrella' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: '4 stjärnor' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: '1 stjärna' })).toHaveAttribute('aria-pressed', 'false')
   })
 })

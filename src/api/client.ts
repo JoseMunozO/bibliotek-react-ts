@@ -1,9 +1,9 @@
 import type { ApiErrorBody } from './types'
 
-// En desarrollo, el proxy de Vite redirige /api a http://localhost:8090
+// Under utveckling skickar Vites proxy /api vidare till http://localhost:8090
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api'
 
-/** Error de la API. `message` se puede mostrar directamente al usuario. */
+/** Fel från API:t. `message` kan visas direkt för användaren. */
 export class ApiError extends Error {
   status: number
 
@@ -14,9 +14,9 @@ export class ApiError extends Error {
   }
 }
 
-/** Mensaje listo para mostrar a partir de cualquier error capturado */
+/** Meddelande som kan visas direkt, utifrån vilket fångat fel som helst */
 export function getErrorMessage(error: unknown): string {
-  return error instanceof ApiError ? error.message : 'Error inesperado'
+  return error instanceof ApiError ? error.message : 'Oväntat fel'
 }
 
 type Method ='GET' | 'POST' | 'PUT'
@@ -30,16 +30,16 @@ export async function request<T>(method: Method, path: string, body?: unknown): 
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
-    throw new ApiError(0, 'No se pudo conectar con el servidor')
+    throw new ApiError(0, 'Kunde inte ansluta till servern')
   }
 
   if (!response.ok) {
     const error = (await response.json().catch(() => null)) as ApiErrorBody | null
     if (error?.message) throw new ApiError(response.status, error.message)
-    // Sin cuerpo JSON en 502/503/504: el proxy de Vite no llega al backend (está parado)
+    // 502/503/504 utan JSON-kropp: Vites proxy når inte backend (den är stoppad)
     if (response.status >= 502 && response.status <= 504)
-      throw new ApiError(0, 'No se pudo conectar con el servidor')
-    throw new ApiError(response.status, `Error ${response.status}`)
+      throw new ApiError(0, 'Kunde inte ansluta till servern')
+    throw new ApiError(response.status, `Fel ${response.status}`)
   }
 
   return (await response.json()) as T

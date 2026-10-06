@@ -3,14 +3,14 @@ import { json, mockFetch, sentBody } from '../test/fetch'
 import { ApiError, getErrorMessage, request } from './client'
 
 describe('request', () => {
-  it('devuelve el JSON de una respuesta correcta', async () => {
+  it('returnerar JSON från ett lyckat svar', async () => {
     const fetchMock = mockFetch(() => json([{ id: 1 }]))
 
     await expect(request('GET', '/books')).resolves.toEqual([{ id: 1 }])
     expect(fetchMock).toHaveBeenCalledWith('/api/books', expect.objectContaining({ method: 'GET' }))
   })
 
-  it('envía el cuerpo como JSON solo cuando lo hay', async () => {
+  it('skickar kroppen som JSON bara när det finns en', async () => {
     const fetchMock = mockFetch(() => json({}))
 
     await request('POST', '/loans', { memberId: 1, bookId: 2 })
@@ -24,45 +24,45 @@ describe('request', () => {
     expect(get?.body).toBeUndefined()
   })
 
-  it('lanza ApiError con el mensaje del backend', async () => {
-    mockFetch(() => json({ status: 409, message: 'No quedan ejemplares disponibles.' }, 409))
+  it('kastar ApiError med meddelandet från backend', async () => {
+    mockFetch(() => json({ status: 409, message: 'Det finns inga lediga exemplar kvar.' }, 409))
 
     const error = await request('POST', '/loans', {}).catch((e) => e)
     expect(error).toBeInstanceOf(ApiError)
-    expect(error).toMatchObject({ status: 409, message: 'No quedan ejemplares disponibles.' })
+    expect(error).toMatchObject({ status: 409, message: 'Det finns inga lediga exemplar kvar.' })
   })
 
-  it('trata un 502 sin cuerpo (proxy sin backend) como servidor no disponible', async () => {
+  it('behandlar 502 utan kropp (proxy utan backend) som att servern inte är tillgänglig', async () => {
     mockFetch(() => new Response(null, { status: 502 }))
 
     await expect(request('GET', '/books')).rejects.toMatchObject({
       status: 0,
-      message: 'No se pudo conectar con el servidor',
+      message: 'Kunde inte ansluta till servern',
     })
   })
 
-  it('usa un mensaje genérico si un error no trae cuerpo', async () => {
+  it('använder ett generellt meddelande om ett fel saknar kropp', async () => {
     mockFetch(() => new Response(null, { status: 404 }))
 
-    await expect(request('GET', '/books/1')).rejects.toMatchObject({ status: 404, message: 'Error 404' })
+    await expect(request('GET', '/books/1')).rejects.toMatchObject({ status: 404, message: 'Fel 404' })
   })
 
-  it('convierte un fallo de red en ApiError con status 0', async () => {
+  it('gör om ett nätverksfel till ApiError med status 0', async () => {
     mockFetch(() => {
       throw new TypeError('Failed to fetch')
     })
 
     await expect(request('GET', '/books')).rejects.toMatchObject({
       status: 0,
-      message: 'No se pudo conectar con el servidor',
+      message: 'Kunde inte ansluta till servern',
     })
   })
 })
 
 describe('getErrorMessage', () => {
-  it('devuelve el mensaje de un ApiError y uno genérico para lo demás', () => {
-    expect(getErrorMessage(new ApiError(404, 'Libro no encontrado.'))).toBe('Libro no encontrado.')
-    expect(getErrorMessage(new Error('detalle interno'))).toBe('Error inesperado')
-    expect(getErrorMessage('cualquier cosa')).toBe('Error inesperado')
+  it('returnerar meddelandet från en ApiError och ett generellt för allt annat', () => {
+    expect(getErrorMessage(new ApiError(404, 'Boken hittades inte.'))).toBe('Boken hittades inte.')
+    expect(getErrorMessage(new Error('intern detalj'))).toBe('Oväntat fel')
+    expect(getErrorMessage('vad som helst')).toBe('Oväntat fel')
   })
 })

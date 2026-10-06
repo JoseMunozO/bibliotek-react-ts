@@ -16,16 +16,16 @@ const splitList = (value: string) =>
     .map((s) => s.trim())
     .filter(Boolean)
 
-/** Ruta /libros/:id */
+/** Sökvägen /bocker/:id */
 export default function BookDetailPage() {
   const bookId = parseId(useParams().id)
-  if (bookId === null) return <NotFoundPage message="Ese libro no existe." />
-  // key: al pasar de un libro a otro se empieza con el estado limpio
+  if (bookId === null) return <NotFoundPage message="Den boken finns inte." />
+  // key: när man går från en bok till en annan börjar man med ett rent tillstånd
   return <BookDetail key={bookId} bookId={bookId} />
 }
 
 function BookDetail({ bookId }: { bookId: number }) {
-  const goBack = useGoBack('/libros')
+  const goBack = useGoBack('/bocker')
   const [book, setBook] = useState<BookDetailsDTO | null>(null)
   const [reviews, setReviews] = useState<ReviewDTO[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +50,7 @@ function BookDetail({ bookId }: { bookId: number }) {
   return (
     <div className="space-y-6">
       <Button variant="secondary" onClick={goBack}>
-        ← Volver
+        ← Tillbaka
       </Button>
 
       <Alert message={error} />
@@ -64,7 +64,7 @@ function BookDetail({ bookId }: { bookId: number }) {
               <p className="text-ink-soft">{splitList(book.authors).join(', ')}</p>
             </div>
             <Badge color={book.availableCopies > 0 ? 'green' : 'gray'}>
-              {book.availableCopies} de {book.totalCopies} disponibles
+              {book.availableCopies} av {book.totalCopies} lediga
             </Badge>
           </div>
 
@@ -78,16 +78,16 @@ function BookDetail({ bookId }: { bookId: number }) {
 
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <Info label="ISBN" value={book.isbn} />
-            <Info label="Año" value={book.yearPublished} />
-            <Info label="Idioma" value={book.language} />
-            <Info label="Páginas" value={book.pageCount ?? '—'} />
+            <Info label="År" value={book.yearPublished} />
+            <Info label="Språk" value={book.language} />
+            <Info label="Sidor" value={book.pageCount ?? '—'} />
           </dl>
         </article>
       )}
 
       <section className="space-y-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-ink">Reseñas ({reviews.length})</h2>
+          <h2 className="text-lg font-semibold text-ink">Recensioner ({reviews.length})</h2>
           {reviews.length > 0 && (
             <span className="flex items-center gap-1 text-sm text-ink-soft">
               <Stars rating={average} /> {average.toFixed(1)}
@@ -96,7 +96,7 @@ function BookDetail({ bookId }: { bookId: number }) {
         </div>
 
         {reviews.length === 0 ? (
-          <p className="text-sm text-muted">Todavía no hay reseñas de este libro.</p>
+          <p className="text-sm text-muted">Den här boken har inga recensioner än.</p>
         ) : (
           <ul className="space-y-3">
             {reviews.map((review) => (

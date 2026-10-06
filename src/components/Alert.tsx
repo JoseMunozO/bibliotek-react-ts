@@ -9,10 +9,10 @@ interface Props {
 }
 
 /**
- * Aviso de error (role="alert", se anuncia enseguida) o de éxito (role="status",
- * se anuncia sin interrumpir). La región existe siempre, vacía y oculta si no hay
- * mensaje, porque los lectores de pantalla solo anuncian de forma fiable los
- * cambios en una región que ya estaba en la página.
+ * Felmeddelande (role="alert", läses upp direkt) eller bekräftelse (role="status",
+ * läses upp utan att avbryta). Regionen finns alltid, tom och dold om det inte finns
+ * något meddelande, eftersom skärmläsare bara läser upp ändringar på ett pålitligt
+ * sätt i en region som redan fanns på sidan.
  */
 export default function Alert({ type = 'error', message }: Props) {
   return (

@@ -25,7 +25,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ role, memberId }))
     } catch {
-      // Sin almacenamiento (modo privado): la sesión dura hasta recargar
+      // Utan lagring (privat läge): sessionen gäller tills sidan laddas om
     }
   }, [role, memberId])
 

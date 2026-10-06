@@ -1,19 +1,19 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-// defineConfig de vitest/config es el de Vite con la opción `test` tipada
+// defineConfig från vitest/config är Vites, med typat alternativ `test`
 import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    // El informe de `npm run coverage` no debe recargar la app en desarrollo
+    // Rapporten från `npm run coverage` ska inte ladda om appen under utveckling
     watch: { ignored: ['**/coverage/**'] },
-    // Redirige /api al backend (bibliotek-api) para evitar problemas de CORS
+    // Skickar /api vidare till backend (bibliotek-api) för att undvika CORS-problem
     proxy: {
       '/api': {
         target: 'http://localhost:8090',
-        // Sin Origin el backend no aplica CORS, así funciona en cualquier puerto de Vite
+        // Utan Origin tillämpar backend inte CORS, så det fungerar på vilken Vite-port som helst
         // (si no, Spring responde 403 "Invalid CORS request" fuera de localhost:5173)
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => proxyReq.removeHeader('origin'))

@@ -8,9 +8,9 @@ Webbgränssnitt för biblioteksystemet **Bibliotek**, byggt med React, TypeScrip
 
 | Böcker (ljust läge) | Bok med recensioner (mörkt läge) |
 |---|---|
-| ![Boklistan med sökning, sortering och filter](docs/screenshots/libros.png) | ![Detaljsida för en bok med recensioner](docs/screenshots/detalle-libro.png) |
+| ![Boklistan med sökning, sortering och filter](docs/screenshots/bocker.png) | ![Detaljsida för en bok med recensioner](docs/screenshots/bokdetalj.png) |
 | **Mest utlånade (ljust läge)** | **Medlemsprofil (mörkt läge)** |
-| ![Topplista över mest utlånade böcker med stapeldiagram](docs/screenshots/mas-prestados.png) | ![Medlemslista och profil med lån och böter](docs/screenshots/socio.png) |
+| ![Topplista över mest utlånade böcker med stapeldiagram](docs/screenshots/mest-utlanade.png) | ![Medlemslista och profil med lån och böter](docs/screenshots/medlem.png) |
 
 ## Funktioner
 
@@ -27,15 +27,15 @@ Det finns ingen inloggning. I stället väljer man en roll i sidhuvudet, precis 
 
 | Roll | Kan |
 |---|---|
-| **Medlem** (*Socio*) | Bläddra bland böcker, recensera som sig själv och se sitt konto: profil, lån, böter och aviseringar. Kan redigera sina uppgifter men inte sin medlemskapstyp. |
-| **Bibliotekarie** (*Bibliotecario*) | Allt ovan plus hantera lån, ta betalt för böter, se medlemmar och skicka aviseringar. |
-| **Administratör** (*Administrador*) | Allt ovan plus registrera, redigera och stänga av medlemmar samt ändra medlemskapstyp. |
+| **Medlem** | Bläddra bland böcker, recensera som sig själv och se sitt konto: profil, lån, böter och aviseringar. Kan redigera sina uppgifter men inte sin medlemskapstyp. |
+| **Bibliotekarie** | Allt ovan plus hantera lån, ta betalt för böter, se medlemmar och skicka aviseringar. |
+| **Administratör** | Allt ovan plus registrera, redigera och stänga av medlemmar samt ändra medlemskapstyp. |
 
 Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna styr bara gränssnittet – API:t har ingen autentisering.
 
 ### Mörkt läge
 
-Appen följer systemets tema som standard, och i sidhuvudet kan man välja *Sistema*, *Claro* eller *Oscuro*. Valet sparas i webbläsaren och ett litet skript i `index.html` sätter temat innan sidan ritas, så att den inte blinkar till i ljust läge. Färgerna är semantiska tokens i `src/index.css` (`bg-surface`, `text-ink`, `border-line` …) med ett värde per tema, och alla text–bakgrund-kombinationer har en kontrast på minst 4,5:1 i båda lägena.
+Appen följer systemets tema som standard, och i sidhuvudet kan man välja *System*, *Ljust* eller *Mörkt*. Valet sparas i webbläsaren och ett litet skript i `index.html` sätter temat innan sidan ritas, så att den inte blinkar till i ljust läge. Färgerna är semantiska tokens i `src/index.css` (`bg-surface`, `text-ink`, `border-line` …) med ett värde per tema, och alla text–bakgrund-kombinationer har en kontrast på minst 4,5:1 i båda lägena.
 
 ### Tillgänglighet
 
@@ -103,16 +103,16 @@ Varje vy har en egen adress, så att man kan ladda om sidan, använda webbläsar
 
 | Adress | Vy |
 |---|---|
-| `/libros` | Böcker (sökning, sortering, filter och sida sparas i `?q=`, `?orden=`, `?disponibles=1` och `?pagina=`) |
-| `/libros/:id` | Bokens detaljer och recensioner |
-| `/mas-prestados` | Mest utlånade (`?top=5\|10\|20\|50`) |
-| `/mi-cuenta` | Mitt konto (rollen Medlem) |
-| `/socios`, `/socios/:id` | Medlemmar och en medlems profil |
-| `/socios/:id/editar` | Redigera medlem (administratör) |
-| `/prestamos` | Lån |
-| `/notificaciones` | Aviseringar (`?socio=` väljer medlem) |
+| `/bocker` | Böcker (sökning, sortering, filter och sida sparas i `?q=`, `?sortering=`, `?tillgangliga=1` och `?sida=`) |
+| `/bocker/:id` | Bokens detaljer och recensioner |
+| `/mest-utlanade` | Mest utlånade (`?top=5\|10\|20\|50`) |
+| `/mitt-konto` | Mitt konto (rollen Medlem) |
+| `/medlemmar`, `/medlemmar/:id` | Medlemmar och en medlems profil |
+| `/medlemmar/:id/redigera` | Redigera medlem (administratör) |
+| `/lan` | Lån |
+| `/aviseringar` | Aviseringar (`?medlem=` väljer medlem) |
 
-Om rollen inte har tillgång till en adress skickas man till `/libros`.
+Om rollen inte har tillgång till en adress skickas man till `/bocker`.
 
 > Eftersom det är en SPA måste webbservern skicka `index.html` för alla okända sökvägar. Under utveckling sköter Vite det, och på Vercel gör `vercel.json` det (se [Driftsättning](#driftsättning)).
 
@@ -165,7 +165,7 @@ try {
 }
 ```
 
-Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`. Gränssnittet är på spanska, liksom felmeddelandena från backend.
+Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`. Gränssnittet är på svenska. Felmeddelandena kommer från backend och visas som de är.
 
 ## Tester
 

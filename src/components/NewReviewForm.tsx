@@ -15,7 +15,7 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
   const session = useSession()
   const [members, setMembers] = useState<MemberDTO[]>([])
   const [selectedMemberId, setSelectedMemberId] = useState('')
-  // El rol Socio siempre reseña como el socio elegido en la cabecera
+  // Rollen Medlem recenserar alltid som medlemmen som valts i sidhuvudet
   const memberId = session.can.reviewAsAnyMember ? selectedMemberId : String(session.memberId ?? '')
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
@@ -35,10 +35,10 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
     e.preventDefault()
     if (rating === 0) {
       setSuccess(null)
-      setError('Elige una puntuación de 1 a 5 estrellas')
+      setError('Välj ett betyg från 1 till 5 stjärnor')
       return
     }
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     setSuccess(null)
     setSaving(true)
@@ -47,7 +47,7 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
       setRating(0)
       setComment('')
       setError(null)
-      setSuccess('Reseña publicada. ¡Gracias por tu opinión!')
+      setSuccess('Recensionen har publicerats. Tack för din åsikt!')
       onCreated()
     } catch (err) {
       setError(getErrorMessage(err))
@@ -59,18 +59,18 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
   if (!memberId && !session.can.reviewAsAnyMember)
     return (
       <p className="rounded-lg border border-line bg-surface p-4 text-sm text-muted">
-        Elige quién eres en la cabecera para escribir una reseña.
+        Välj vem du är i sidhuvudet för att skriva en recension.
       </p>
     )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-surface p-4">
-      <h3 className="font-medium text-ink">Escribir una reseña</h3>
-      <p className="text-xs text-muted">Solo pueden opinar los socios que ya han devuelto este libro.</p>
+      <h3 className="font-medium text-ink">Skriv en recension</h3>
+      <p className="text-xs text-muted">Endast medlemmar som har lämnat tillbaka boken kan recensera den.</p>
       <div className="flex flex-wrap items-center gap-3">
         {session.can.reviewAsAnyMember && (
           <Select required value={selectedMemberId} onChange={(e) => setSelectedMemberId(e.target.value)}>
-            <option value="">Socio...</option>
+            <option value="">Medlem …</option>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.fullName}
@@ -85,13 +85,13 @@ export default function NewReviewForm({ bookId, onCreated }: Props) {
         rows={3}
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="¿Qué te ha parecido?"
+        placeholder="Vad tyckte du?"
         className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
       />
       <Alert message={error} />
       <Alert type="success" message={success} />
       <Button type="submit" disabled={saving}>
-        {saving ? 'Enviando...' : 'Publicar reseña'}
+        {saving ? 'Skickar …' : 'Publicera recension'}
       </Button>
     </form>
   )
