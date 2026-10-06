@@ -25,12 +25,12 @@ dist-ssr
 *.sw?
 Thumbs.db
 
-# Variables de entorno (se sube solo la plantilla)
+# Miljövariabler (bara mallen checkas in)
 .env
 .env.*
 !.env.example
 
-# Caché y artefactos de herramientas
+# Cache och artefakter från verktyg
 *.tsbuildinfo
 .eslintcache
 .vite

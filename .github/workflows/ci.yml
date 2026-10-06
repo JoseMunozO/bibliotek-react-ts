@@ -9,19 +9,19 @@ on:
 permissions:
   contents: read
 
-# Un push nuevo a la misma rama cancela la ejecución anterior
+# En ny push till samma gren avbryter föregående körning
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Lint, tests y build (Node ${{ matrix.node }})
+    name: Lint, tester och bygge (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # 22 = versión mínima de React Router 8 (>= 22.22); 24 = la usada en desarrollo
+        # 22 = lägsta version för React Router 8 (>= 22.22); 24 = den som används under utveckling
         node: ['22', '24']
     steps:
       - uses: actions/checkout@v7

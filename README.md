@@ -27,15 +27,15 @@ Det finns ingen inloggning. I stället väljer man en roll i sidhuvudet, precis 
 
 | Roll | Kan |
 |---|---|
-| **Medlem** (*Socio*) | Bläddra bland böcker, recensera som sig själv och se sitt konto: profil, lån, böter och aviseringar. Kan redigera sina uppgifter men inte sin medlemskapstyp. |
-| **Bibliotekarie** (*Bibliotecario*) | Allt ovan plus hantera lån, ta betalt för böter, se medlemmar och skicka aviseringar. |
-| **Administratör** (*Administrador*) | Allt ovan plus registrera, redigera och stänga av medlemmar samt ändra medlemskapstyp. |
+| **Medlem** | Bläddra bland böcker, recensera som sig själv och se sitt konto: profil, lån, böter och aviseringar. Kan redigera sina uppgifter men inte sin medlemskapstyp. |
+| **Bibliotekarie** | Allt ovan plus hantera lån, ta betalt för böter, se medlemmar och skicka aviseringar. |
+| **Administratör** | Allt ovan plus registrera, redigera och stänga av medlemmar samt ändra medlemskapstyp. |
 
 Som medlem väljer man också vem man är. Valet sparas i webbläsaren. Rollerna styr bara gränssnittet – API:t har ingen autentisering.
 
 ### Mörkt läge
 
-Appen följer systemets tema som standard, och i sidhuvudet kan man välja *Sistema*, *Claro* eller *Oscuro*. Valet sparas i webbläsaren och ett litet skript i `index.html` sätter temat innan sidan ritas, så att den inte blinkar till i ljust läge. Färgerna är semantiska tokens i `src/index.css` (`bg-surface`, `text-ink`, `border-line` …) med ett värde per tema, och alla text–bakgrund-kombinationer har en kontrast på minst 4,5:1 i båda lägena.
+Appen följer systemets tema som standard, och i sidhuvudet kan man välja *System*, *Ljust* eller *Mörkt*. Valet sparas i webbläsaren och ett litet skript i `index.html` sätter temat innan sidan ritas, så att den inte blinkar till i ljust läge. Färgerna är semantiska tokens i `src/index.css` (`bg-surface`, `text-ink`, `border-line` …) med ett värde per tema, och alla text–bakgrund-kombinationer har en kontrast på minst 4,5:1 i båda lägena.
 
 ### Tillgänglighet
 
@@ -165,7 +165,7 @@ try {
 }
 ```
 
-Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`. Gränssnittet är på spanska, liksom felmeddelandena från backend.
+Alla fel från API:t har formen `{ status, message }` och kastas som `ApiError`. Gränssnittet är på svenska. Felmeddelandena kommer från backend och visas som de är.
 
 ## Tester
 
