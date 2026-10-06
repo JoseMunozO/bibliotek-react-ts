@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 
-/** Respuesta JSON como la del backend */
+/** JSON-svar som från backend */
 export function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -10,14 +10,14 @@ export function json(body: unknown, status = 200): Response {
 
 type Handler = (url: string, init?: RequestInit) => Response | Promise<Response>
 
-/** Sustituye `fetch` por `handler` (se restaura solo tras cada test: `unstubGlobals`) */
+/** Ersätter `fetch` med `handler` (återställs automatiskt efter varje test: `unstubGlobals`) */
 export function mockFetch(handler: Handler) {
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => Promise.resolve(handler(String(input), init)))
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
 }
 
-/** Cuerpo JSON enviado en la llamada `n` del mock */
+/** JSON-kropp som skickades i anrop `n` till mocken */
 export function sentBody(fetchMock: ReturnType<typeof mockFetch>, n = 0): unknown {
   const body = fetchMock.mock.calls[n]?.[1]?.body
   return typeof body === 'string' ? JSON.parse(body) : undefined

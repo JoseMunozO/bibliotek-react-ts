@@ -8,16 +8,16 @@ describe('today', () => {
     vi.useRealTimers()
   })
 
-  it('devuelve la fecha local como YYYY-MM-DD, comparable con las de la API', () => {
+  it('returnerar lokalt datum som YYYY-MM-DD, jämförbart med API:ts', () => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date(2026, 0, 5, 23, 30)) // 5 de enero, hora local
+    vi.setSystemTime(new Date(2026, 0, 5, 23, 30)) // 5 januari, lokal tid
     expect(today()).toBe('2026-01-05')
     expect('2026-01-04' < today()).toBe(true)
   })
 })
 
 describe('formatAmount', () => {
-  it('muestra siempre dos decimales', () => {
+  it('visar alltid två decimaler', () => {
     expect(formatAmount(0)).toBe('0.00')
     expect(formatAmount(14)).toBe('14.00')
     expect(formatAmount(2.5)).toBe('2.50')
@@ -25,12 +25,12 @@ describe('formatAmount', () => {
 })
 
 describe('notificationTypeLabel', () => {
-  it('traduce los tipos conocidos', () => {
-    expect(notificationTypeLabel('overdue_warning')).toBe('Aviso de retraso')
-    expect(notificationTypeLabel('pending_fine')).toBe('Multa pendiente')
+  it('översätter kända typer', () => {
+    expect(notificationTypeLabel('overdue_warning')).toBe('Förseningsvarning')
+    expect(notificationTypeLabel('pending_fine')).toBe('Obetalda böter')
   })
 
-  it('convierte en texto legible los tipos desconocidos', () => {
+  it('gör om okända typer till läsbar text', () => {
     expect(notificationTypeLabel('book_available')).toBe('Book available')
   })
 })
@@ -52,7 +52,7 @@ describe('parseId', () => {
 })
 
 describe('permissionsFor', () => {
-  it('reparte los permisos como el menú de consola', () => {
+  it('fördelar behörigheterna som konsolmenyn', () => {
     expect(permissionsFor('user')).toEqual({
       viewMembers: false,
       manageMembers: false,
@@ -77,26 +77,26 @@ describe('permissionsFor', () => {
 
 describe('sortBooks', () => {
   const books = [
-    { id: 1, title: 'Libro 10', authors: 'Zoe Ávila', availableCopies: 0 },
-    { id: 2, title: 'él y yo', authors: 'Ana Pérez', availableCopies: 2 },
-    { id: 3, title: 'Libro 2', authors: 'ana pérez', availableCopies: 2 },
-    { id: 4, title: 'Árbol', authors: 'Bruno Díaz', availableCopies: 5 },
+    { id: 1, title: 'Bok 10', authors: 'Örjan Ek', availableCopies: 0 },
+    { id: 2, title: 'bok 2', authors: 'Anna Berg', availableCopies: 2 },
+    { id: 3, title: 'Älven', authors: 'anna berg', availableCopies: 2 },
+    { id: 4, title: 'Zebran', authors: 'Bo Dahl', availableCopies: 5 },
   ]
   const ids = (list: typeof books) => list.map((b) => b.id)
 
-  it('por título ignora tildes y mayúsculas y ordena los números de forma natural', () => {
-    expect(ids(sortBooks(books, 'titel'))).toEqual([4, 2, 3, 1])
+  it('efter titel i svensk ordning, utan hänsyn till versaler och med naturlig sortering av siffror', () => {
+    expect(ids(sortBooks(books, 'titel'))).toEqual([2, 1, 4, 3])
   })
 
-  it('por autor, y a igualdad de autor por título', () => {
+  it('efter författare, och vid samma författare efter titel', () => {
     expect(ids(sortBooks(books, 'forfattare'))).toEqual([2, 3, 4, 1])
   })
 
-  it('por ejemplares disponibles de más a menos, y a igualdad por título', () => {
+  it('efter lediga exemplar i fallande ordning, och vid lika antal efter titel', () => {
     expect(ids(sortBooks(books, 'tillgangliga'))).toEqual([4, 2, 3, 1])
   })
 
-  it('no modifica la lista original', () => {
+  it('ändrar inte den ursprungliga listan', () => {
     const copy = [...books]
     sortBooks(books, 'forfattare')
     expect(books).toEqual(copy)
@@ -106,19 +106,19 @@ describe('sortBooks', () => {
 describe('paginate', () => {
   const items = Array.from({ length: 45 }, (_, i) => i + 1)
 
-  it('devuelve la página pedida y el total de páginas', () => {
+  it('returnerar begärd sida och totalt antal sidor', () => {
     expect(paginate(items, 2, 20)).toEqual({ items: items.slice(20, 40), page: 2, totalPages: 3, start: 20 })
     expect(paginate(items, 3, 20).items).toEqual([41, 42, 43, 44, 45])
   })
 
-  it('ajusta páginas fuera de rango o no válidas', () => {
+  it('justerar sidor utanför intervallet eller ogiltiga sidor', () => {
     expect(paginate(items, 99, 20).page).toBe(3)
     expect(paginate(items, 0, 20).page).toBe(1)
     expect(paginate(items, NaN, 20).page).toBe(1)
     expect(paginate(items, 2.7, 20).page).toBe(2)
   })
 
-  it('una lista vacía tiene una página vacía', () => {
+  it('en tom lista har en tom sida', () => {
     expect(paginate([], 1, 20)).toEqual({ items: [], page: 1, totalPages: 1, start: 0 })
   })
 })
@@ -129,10 +129,10 @@ describe('pageWindow', () => {
     [1, 3, [1, 2, 3]],
     [1, 10, [1, 2, '…', 10]],
     [6, 12, [1, '…', 5, 6, 7, '…', 12]],
-    [3, 10, [1, 2, 3, 4, '…', 10]], // entre 1 y 2 no se salta nada
-    [4, 10, [1, 2, 3, 4, 5, '…', 10]], // solo falta el 2: se muestra en vez de '…'
+    [3, 10, [1, 2, 3, 4, '…', 10]], // mellan 1 och 2 hoppas inget över
+    [4, 10, [1, 2, 3, 4, 5, '…', 10]], // bara 2 saknas: visas i stället för '…'
     [10, 10, [1, '…', 9, 10]],
-  ])('página %i de %i → %o', (current, total, expected) => {
+  ])('sida %i av %i → %o', (current, total, expected) => {
     expect(pageWindow(current, total)).toEqual(expected)
   })
 })

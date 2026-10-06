@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 
-// El tema elegido se guarda en localStorage; "system" sigue la preferencia del sistema.
-// index.html aplica el mismo cálculo antes de pintar para evitar un destello en claro.
+// Valt tema sparas i localStorage; "system" följer systemets inställning.
+// index.html gör samma beräkning innan sidan ritas, så att den inte blinkar till i ljust läge.
 
 export type Theme = 'system' | 'light' | 'dark'
 
 export const themeLabel: Record<Theme, string> = {
-  system: 'Sistema',
-  light: 'Claro',
-  dark: 'Oscuro',
+  system: 'System',
+  light: 'Ljust',
+  dark: 'Mörkt',
 }
 
 export const THEME_STORAGE_KEY = 'bibliotek.theme'
@@ -29,7 +29,7 @@ export function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle('dark', dark)
 }
 
-/** Tema actual y función para cambiarlo; con "system" reacciona a los cambios del sistema */
+/** Aktuellt tema och en funktion för att byta det; med "system" följer det ändringar i systemet */
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(storedTheme)
 
@@ -39,7 +39,7 @@ export function useTheme() {
       if (theme === 'system') localStorage.removeItem(THEME_STORAGE_KEY)
       else localStorage.setItem(THEME_STORAGE_KEY, theme)
     } catch {
-      // Sin almacenamiento: el tema dura hasta recargar
+      // Utan lagring: temat gäller tills sidan laddas om
     }
     if (theme !== 'system') return
     const query = darkQuery()

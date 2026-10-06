@@ -31,13 +31,13 @@ export default function MostBorrowedPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-ink">Libros más prestados</h2>
+        <h2 className="text-lg font-semibold text-ink">Mest utlånade böcker</h2>
         <label className="flex items-center gap-2 text-sm text-ink-soft">
-          Mostrar
+          Visa
           <Select value={limit} onChange={(e) => setSearchParams({ top: e.target.value }, { replace: true })}>
             {limits.map((l) => (
               <option key={l} value={l}>
-                Top {l}
+                Topp {l}
               </option>
             ))}
           </Select>
@@ -47,7 +47,7 @@ export default function MostBorrowedPage() {
       <Alert message={error} />
       {loading && <Loading />}
       {!loading && !error && stats.length === 0 && (
-        <p className="text-sm text-muted">Todavía no hay préstamos registrados.</p>
+        <p className="text-sm text-muted">Det finns inga registrerade lån än.</p>
       )}
 
       {stats.length > 0 && (
@@ -56,7 +56,7 @@ export default function MostBorrowedPage() {
             <li key={s.bookId}>
               <Link
                 to={`/bocker/${s.bookId}`}
-                title={`${s.title}: ${s.loanCount} ${s.loanCount === 1 ? 'préstamo' : 'préstamos'}`}
+                title={`${s.title}: ${s.loanCount} lån`}
                 className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-2 rounded-md px-2 py-2 text-left hover:bg-surface-alt sm:grid-cols-[2rem_minmax(0,16rem)_minmax(0,1fr)]"
               >
                 <span className="text-sm text-muted tabular-nums">{index + 1}</span>

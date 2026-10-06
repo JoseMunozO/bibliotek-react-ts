@@ -6,7 +6,7 @@ import { THEME_STORAGE_KEY } from './theme'
 
 const isDark = () => document.documentElement.classList.contains('dark')
 
-/** matchMedia del sistema con un valor inicial y una función para cambiarlo */
+/** Systemets matchMedia med ett startvärde och en funktion för att ändra det */
 function mockSystemTheme(dark: boolean) {
   const listeners = new Set<() => void>()
   const state = { dark }
@@ -28,7 +28,7 @@ function mockSystemTheme(dark: boolean) {
 }
 
 describe('tema', () => {
-  it('por defecto sigue al sistema y reacciona cuando cambia', () => {
+  it('följer systemet som standard och reagerar när det ändras', () => {
     const setSystemDark = mockSystemTheme(true)
     render(<ThemeSelect />)
 
@@ -38,7 +38,7 @@ describe('tema', () => {
     expect(isDark()).toBe(false)
   })
 
-  it('el tema elegido manda sobre el del sistema y se guarda', async () => {
+  it('valt tema går före systemets och sparas', async () => {
     const user = userEvent.setup()
     const setSystemDark = mockSystemTheme(false)
     render(<ThemeSelect />)
@@ -47,7 +47,7 @@ describe('tema', () => {
     expect(isDark()).toBe(true)
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark')
 
-    // Con un tema fijo, los cambios del sistema no le afectan
+    // Med ett fast tema påverkas det inte av ändringar i systemet
     setSystemDark(false)
     expect(isDark()).toBe(true)
 
@@ -56,7 +56,7 @@ describe('tema', () => {
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBeNull()
   })
 
-  it('recupera el tema guardado al cargar', () => {
+  it('läser in sparat tema vid start', () => {
     mockSystemTheme(false)
     localStorage.setItem(THEME_STORAGE_KEY, 'dark')
     render(<ThemeSelect />)

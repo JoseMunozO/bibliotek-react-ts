@@ -29,7 +29,7 @@ export default function NewLoanForm({ onCreated }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     setSaving(true)
     try {
@@ -47,10 +47,10 @@ export default function NewLoanForm({ onCreated }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-surface p-4">
-      <h2 className="font-medium text-ink">Nuevo préstamo</h2>
+      <h2 className="font-medium text-ink">Nytt lån</h2>
       <div className="grid gap-2 sm:grid-cols-2">
         <Select required value={memberId} onChange={(e) => setMemberId(e.target.value)}>
-          <option value="">Socio...</option>
+          <option value="">Medlem …</option>
           {members.map((m) => (
             <option key={m.id} value={m.id}>
               {m.fullName}
@@ -58,7 +58,7 @@ export default function NewLoanForm({ onCreated }: Props) {
           ))}
         </Select>
         <Select required value={bookId} onChange={(e) => setBookId(e.target.value)}>
-          <option value="">Libro disponible...</option>
+          <option value="">Ledig bok …</option>
           {books.map((b) => (
             <option key={b.id} value={b.id}>
               {b.title} ({b.availableCopies})
@@ -68,7 +68,7 @@ export default function NewLoanForm({ onCreated }: Props) {
       </div>
       <Alert message={error} />
       <Button type="submit" disabled={saving}>
-        {saving ? 'Guardando...' : 'Prestar (14 días)'}
+        {saving ? 'Sparar …' : 'Låna ut (14 dagar)'}
       </Button>
     </form>
   )

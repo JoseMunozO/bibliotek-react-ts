@@ -1,32 +1,32 @@
 import { createContext, useContext } from 'react'
 
-// No hay autenticación: el rol y el socio actual se eligen en la cabecera,
-// igual que en el menú de consola original (User / Librarian / Admin).
+// Det finns ingen autentisering: roll och aktuell medlem väljs i sidhuvudet,
+// precis som i den ursprungliga konsolmenyn (User / Librarian / Admin).
 
 export type Role = 'user' | 'librarian' | 'admin'
 
 export const roleLabel: Record<Role, string> = {
-  user: 'Socio',
-  librarian: 'Bibliotecario',
-  admin: 'Administrador',
+  user: 'Medlem',
+  librarian: 'Bibliotekarie',
+  admin: 'Administratör',
 }
 
-/** Qué puede hacer cada rol, según los menús de la aplicación de consola */
+/** Vad varje roll får göra, enligt menyerna i konsolprogrammet */
 export function permissionsFor(role: Role) {
   const staff = role !== 'user'
   return {
-    /** Ver la lista de socios y sus fichas */
+    /** Se medlemslistan och medlemmarnas profiler */
     viewMembers: staff,
-    /** Dar de alta, editar cualquier socio y suspender */
+    /** Registrera, redigera vilken medlem som helst och stänga av */
     manageMembers: role === 'admin',
-    /** Prestar, devolver, prorrogar y ver vencidos */
+    /** Låna ut, ta emot återlämningar, förlänga och se försenade lån */
     manageLoans: staff,
     payFines: staff,
-    /** Ver y enviar notificaciones de cualquier socio */
+    /** Se och skicka aviseringar till vilken medlem som helst */
     manageNotifications: staff,
-    /** Reseñar en nombre de cualquier socio (el socio solo en el suyo) */
+    /** Recensera i vilken medlems namn som helst (en medlem bara i sitt eget) */
     reviewAsAnyMember: staff,
-    /** Cambiar el tipo de membresía al editar un socio */
+    /** Ändra medlemskapstyp när en medlem redigeras */
     changeMembershipType: role === 'admin',
   }
 }
@@ -35,7 +35,7 @@ export type Permissions = ReturnType<typeof permissionsFor>
 
 export interface Session {
   role: Role
-  /** Socio con el que actúa el rol "Socio" */
+  /** Medlemmen som rollen "Medlem" agerar som */
   memberId: number | null
   can: Permissions
   setRole: (role: Role) => void
@@ -46,6 +46,6 @@ export const SessionContext = createContext<Session | null>(null)
 
 export function useSession(): Session {
   const session = useContext(SessionContext)
-  if (!session) throw new Error('useSession debe usarse dentro de <SessionProvider>')
+  if (!session) throw new Error('useSession måste användas inuti <SessionProvider>')
   return session
 }

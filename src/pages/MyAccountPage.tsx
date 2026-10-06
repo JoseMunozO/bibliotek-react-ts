@@ -5,10 +5,10 @@ import { useSession } from '../session'
 import EditMemberPage from './EditMemberPage'
 
 const chooseMember = (
-  <p className="text-muted">Elige quién eres en el selector de la cabecera para ver tu cuenta.</p>
+  <p className="text-muted">Välj vem du är i sidhuvudet för att se ditt konto.</p>
 )
 
-/** Ruta /mitt-konto: vista del rol Socio con su perfil, préstamos, multas y notificaciones */
+/** Sökvägen /mitt-konto: vyn för rollen Medlem med profil, lån, böter och aviseringar */
 export default function MyAccountPage() {
   const { memberId } = useSession()
   const navigate = useNavigate()
@@ -23,7 +23,7 @@ export default function MyAccountPage() {
   )
 }
 
-/** Ruta /mitt-konto/redigera */
+/** Sökvägen /mitt-konto/redigera */
 export function EditMyAccountPage() {
   const { memberId } = useSession()
   const navigate = useNavigate()
@@ -31,5 +31,5 @@ export function EditMyAccountPage() {
   if (memberId === null) return chooseMember
 
   const back = () => navigate('/mitt-konto')
-  return <EditMemberPage key={memberId} memberId={memberId} backLabel="Volver a mi cuenta" onBack={back} onSaved={back} />
+  return <EditMemberPage key={memberId} memberId={memberId} backLabel="Tillbaka till mitt konto" onBack={back} onSaved={back} />
 }

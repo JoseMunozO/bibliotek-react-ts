@@ -17,17 +17,17 @@ function App() {
   const { can } = session
   const isUser = session.role === 'user'
 
-  // Pestañas visibles según el rol (mismo reparto que el menú de consola)
+  // Flikar som syns för rollen (samma fördelning som i konsolmenyn)
   const tabs = [
-    { to: '/bocker', label: 'Libros', visible: true },
-    { to: '/mest-utlanade', label: 'Más prestados', visible: true },
-    { to: '/mitt-konto', label: 'Mi cuenta', visible: isUser },
-    { to: '/medlemmar', label: 'Socios', visible: can.viewMembers },
-    { to: '/lan', label: 'Préstamos', visible: can.manageLoans },
-    { to: '/aviseringar', label: 'Notificaciones', visible: can.manageNotifications },
+    { to: '/bocker', label: 'Böcker', visible: true },
+    { to: '/mest-utlanade', label: 'Mest utlånade', visible: true },
+    { to: '/mitt-konto', label: 'Mitt konto', visible: isUser },
+    { to: '/medlemmar', label: 'Medlemmar', visible: can.viewMembers },
+    { to: '/lan', label: 'Lån', visible: can.manageLoans },
+    { to: '/aviseringar', label: 'Aviseringar', visible: can.manageNotifications },
   ].filter((tab) => tab.visible)
 
-  // Una ruta no permitida para el rol actual redirige a Libros
+  // En sökväg som rollen inte har tillgång till skickar vidare till Böcker
   const only = (allowed: boolean, element: ReactElement) => (allowed ? element : <Navigate to="/bocker" replace />)
 
   return (

@@ -11,88 +11,88 @@ const members = [
 ]
 
 describe('NewReviewForm', () => {
-  it('rol Socio sin identificar: no muestra el formulario', () => {
+  it('rollen Medlem utan vald medlem: visar inte formuläret', () => {
     mockFetch(() => json([]))
     renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', null)
 
-    expect(screen.getByText(/Elige quién eres/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Publicar reseña' })).not.toBeInTheDocument()
+    expect(screen.getByText(/Välj vem du är/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Publicera recension' })).not.toBeInTheDocument()
   })
 
-  it('rol Socio: reseña como el socio de la sesión, sin selector', async () => {
+  it('rollen Medlem: recenserar som sessionens medlem, utan väljare', async () => {
     const user = userEvent.setup()
     const fetchMock = mockFetch(() => json({ id: 1 }, 201))
     const onCreated = vi.fn()
     renderWithSession(<NewReviewForm bookId={5} onCreated={onCreated} />, 'user', 7)
 
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: '4 estrellas' }))
-    await user.type(screen.getByPlaceholderText('¿Qué te ha parecido?'), 'Muy bueno')
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    await user.click(screen.getByRole('button', { name: '4 stjärnor' }))
+    await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'Mycket bra')
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
 
-    expect(await screen.findByText(/Reseña publicada/)).toBeInTheDocument()
+    expect(await screen.findByText(/Recensionen har publicerats/)).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith('/api/books/5/reviews', expect.objectContaining({ method: 'POST' }))
-    expect(sentBody(fetchMock)).toEqual({ memberId: 7, rating: 4, comment: 'Muy bueno' })
+    expect(sentBody(fetchMock)).toEqual({ memberId: 7, rating: 4, comment: 'Mycket bra' })
     expect(onCreated).toHaveBeenCalledOnce()
   })
 
-  it('no envía nada si falta la puntuación', async () => {
+  it('skickar inget om betyg saknas', async () => {
     const user = userEvent.setup()
     const fetchMock = mockFetch(() => json({}))
     renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', 7)
 
-    await user.type(screen.getByPlaceholderText('¿Qué te ha parecido?'), 'Sin estrellas')
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'Utan stjärnor')
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
 
-    expect(screen.getByText('Elige una puntuación de 1 a 5 estrellas')).toBeInTheDocument()
+    expect(screen.getByText('Välj ett betyg från 1 till 5 stjärnor')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('personal: elige el socio y muestra el error del backend', async () => {
+  it('personal: väljer medlem och visar felet från backend', async () => {
     const user = userEvent.setup()
     mockFetch((_url, init) =>
       init?.method === 'POST'
-        ? json({ status: 409, message: 'Este socio ya ha reseñado este libro.' }, 409)
+        ? json({ status: 409, message: 'Medlemmen har redan recenserat den här boken.' }, 409)
         : json(members),
     )
     const onCreated = vi.fn()
     renderWithSession(<NewReviewForm bookId={5} onCreated={onCreated} />, 'librarian')
 
     await user.selectOptions(await screen.findByRole('combobox'), await screen.findByRole('option', { name: 'Harper Thomas' }))
-    await user.click(screen.getByRole('button', { name: '5 estrellas' }))
-    await user.type(screen.getByPlaceholderText('¿Qué te ha parecido?'), 'Otra vez')
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    await user.click(screen.getByRole('button', { name: '5 stjärnor' }))
+    await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'En gång till')
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
 
-    expect(await screen.findByText('Este socio ya ha reseñado este libro.')).toBeInTheDocument()
-    expect(screen.queryByText(/Reseña publicada/)).not.toBeInTheDocument()
+    expect(await screen.findByText('Medlemmen har redan recenserat den här boken.')).toBeInTheDocument()
+    expect(screen.queryByText(/Recensionen har publicerats/)).not.toBeInTheDocument()
     expect(onCreated).not.toHaveBeenCalled()
   })
 
-  it('anuncia errores y confirmaciones, y vacía el aviso al reenviar', async () => {
+  it('läser upp fel och bekräftelser, och tömmer meddelandet vid nytt försök', async () => {
     const user = userEvent.setup()
     let respond: (r: Response) => void = () => {}
     mockFetch(() => new Promise<Response>((resolve) => (respond = resolve)))
     renderWithSession(<NewReviewForm bookId={5} onCreated={vi.fn()} />, 'user', 7)
 
-    // Sin estrellas: error en la región role="alert"
-    await user.type(screen.getByPlaceholderText('¿Qué te ha parecido?'), 'Hola')
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
-    expect(screen.getByRole('alert')).toHaveTextContent('Elige una puntuación de 1 a 5 estrellas')
+    // Utan stjärnor: fel i regionen role="alert"
+    await user.type(screen.getByPlaceholderText('Vad tyckte du?'), 'Hej')
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Välj ett betyg från 1 till 5 stjärnor')
 
-    // Al reenviar, el aviso se vacía mientras se espera al backend
-    await user.click(screen.getByRole('button', { name: '3 estrellas' }))
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    // Vid nytt försök töms meddelandet medan backend svarar
+    await user.click(screen.getByRole('button', { name: '3 stjärnor' }))
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
     expect(screen.getByRole('alert')).toBeEmptyDOMElement()
 
-    // Error del backend
-    respond(json({ status: 409, message: 'El socio debe haber devuelto este libro antes de reseñarlo.' }, 409))
-    expect(await screen.findByText(/debe haber devuelto/)).toBeInTheDocument()
-    expect(screen.getByRole('alert')).toHaveTextContent('El socio debe haber devuelto este libro antes de reseñarlo.')
+    // Fel från backend
+    respond(json({ status: 409, message: 'Medlemmen måste ha lämnat tillbaka boken innan den kan recenseras.' }, 409))
+    expect(await screen.findByText(/måste ha lämnat tillbaka/)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('Medlemmen måste ha lämnat tillbaka boken innan den kan recenseras.')
 
-    // Segundo intento correcto: confirmación en role="status" y el error desaparece
-    await user.click(screen.getByRole('button', { name: 'Publicar reseña' }))
+    // Andra försöket lyckas: bekräftelse i role="status" och felet försvinner
+    await user.click(screen.getByRole('button', { name: 'Publicera recension' }))
     respond(json({ id: 1 }, 201))
-    expect(await screen.findByRole('status')).toHaveTextContent(/Reseña publicada/)
+    expect(await screen.findByRole('status')).toHaveTextContent(/Recensionen har publicerats/)
     expect(screen.getByRole('alert')).toBeEmptyDOMElement()
   })
 })

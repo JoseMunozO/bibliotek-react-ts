@@ -28,7 +28,7 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     setSuccess(null)
     setSaving(true)
@@ -42,7 +42,7 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
       setMessage('')
       setLoanId('')
       setError(null)
-      setSuccess('Notificación enviada.')
+      setSuccess('Aviseringen har skickats.')
       onCreated()
     } catch (err) {
       setError(getErrorMessage(err))
@@ -53,7 +53,7 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-surface p-4">
-      <h3 className="font-medium text-ink">Enviar notificación</h3>
+      <h3 className="font-medium text-ink">Skicka avisering</h3>
       <div className="grid gap-2 sm:grid-cols-2">
         <Select value={type} onChange={(e) => setType(e.target.value)}>
           {notificationTypes.map((t) => (
@@ -63,10 +63,10 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
           ))}
         </Select>
         <Select value={loanId} onChange={(e) => setLoanId(e.target.value)}>
-          <option value="">Sin préstamo asociado</option>
+          <option value="">Inget kopplat lån</option>
           {loans.map((l) => (
             <option key={l.id} value={l.id}>
-              {l.bookTitle} (vence {l.dueDate})
+              {l.bookTitle} (förfaller {l.dueDate})
             </option>
           ))}
         </Select>
@@ -76,13 +76,13 @@ export default function NewNotificationForm({ memberId, onCreated }: Props) {
         rows={2}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Mensaje para el socio"
+        placeholder="Meddelande till medlemmen"
         className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
       />
       <Alert message={error} />
       <Alert type="success" message={success} />
       <Button type="submit" disabled={saving}>
-        {saving ? 'Enviando...' : 'Enviar'}
+        {saving ? 'Skickar …' : 'Skicka'}
       </Button>
     </form>
   )

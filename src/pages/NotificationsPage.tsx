@@ -22,12 +22,12 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-6">
       <label className="flex flex-wrap items-center gap-3 text-sm text-ink-soft">
-        Socio
+        Medlem
         <Select
           value={memberId ?? ''}
           onChange={(e) => setSearchParams(e.target.value ? { medlem: e.target.value } : {})}
         >
-          <option value="">Selecciona un socio...</option>
+          <option value="">Välj en medlem …</option>
           {members.map((m) => (
             <option key={m.id} value={m.id}>
               {m.fullName}
@@ -39,7 +39,7 @@ export default function NotificationsPage() {
       <Alert message={error} />
 
       {memberId === null ? (
-        <p className="text-muted">Selecciona un socio para ver sus notificaciones.</p>
+        <p className="text-muted">Välj en medlem för att se aviseringarna.</p>
       ) : (
         <MemberNotifications key={memberId} memberId={memberId} canSend />
       )}

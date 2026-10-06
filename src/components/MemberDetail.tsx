@@ -9,9 +9,9 @@ import Button from './Button'
 
 interface Props {
   memberId: number
-  /** Se llama cuando cambia algo del socio (p. ej. su estado) */
+  /** Anropas när något ändras hos medlemmen (t.ex. status) */
   onChange: () => void
-  /** Si se omite, no se muestra el botón Editar */
+  /** Om den utelämnas visas inte knappen Redigera */
   onEdit?: () => void
 }
 
@@ -37,7 +37,7 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
   }, [load])
 
   async function run(action: () => Promise<unknown>) {
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     try {
       await action()
@@ -57,19 +57,19 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
         <div>
           <h2 className="text-lg font-semibold text-ink">{profile.fullName}</h2>
           <p className="text-sm text-muted">
-            {profile.email} · socio desde {profile.membershipDate} · {membershipTypeLabel[profile.membershipType]}
+            {profile.email} · medlem sedan {profile.membershipDate} · {membershipTypeLabel[profile.membershipType]}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge color={memberStatusColor[profile.status]}>{memberStatusLabel[profile.status]}</Badge>
           {onEdit && (
             <Button variant="secondary" onClick={onEdit}>
-              Editar
+              Redigera
             </Button>
           )}
           {can.manageMembers && profile.status === 'active' && (
             <Button variant="danger" onClick={() => run(() => membersApi.suspend(memberId))}>
-              Suspender
+              Stäng av
             </Button>
           )}
         </div>
@@ -78,16 +78,16 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
       <Alert message={error} />
 
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Préstamos activos" value={profile.activeLoansCount} />
-        <Stat label="Préstamos totales" value={profile.totalLoansCount} />
-        <Stat label="Multas" value={profile.totalFinesCount} />
-        <Stat label="Pendiente de pago" value={formatAmount(profile.unpaidFineAmount)} />
+        <Stat label="Aktiva lån" value={profile.activeLoansCount} />
+        <Stat label="Lån totalt" value={profile.totalLoansCount} />
+        <Stat label="Böter" value={profile.totalFinesCount} />
+        <Stat label="Att betala" value={formatAmount(profile.unpaidFineAmount)} />
       </dl>
 
       <section>
-        <h3 className="mb-2 font-medium text-ink">Préstamos</h3>
+        <h3 className="mb-2 font-medium text-ink">Lån</h3>
         {loans.length === 0 ? (
-          <p className="text-sm text-muted">Sin préstamos.</p>
+          <p className="text-sm text-muted">Inga lån.</p>
         ) : (
           <ul className="divide-y divide-line text-sm">
             {loans.map((loan) => (
@@ -95,11 +95,11 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
                 <span>{loan.bookTitle}</span>
                 <span className="text-muted">
                   {loan.returnDate ? (
-                    `Devuelto ${loan.returnDate}`
+                    `Återlämnad ${loan.returnDate}`
                   ) : loan.dueDate < today() ? (
-                    <Badge color="red">Vencido {loan.dueDate}</Badge>
+                    <Badge color="red">Försenad {loan.dueDate}</Badge>
                   ) : (
-                    `Vence ${loan.dueDate}`
+                    `Förfaller ${loan.dueDate}`
                   )}
                 </span>
               </li>
@@ -109,9 +109,9 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
       </section>
 
       <section>
-        <h3 className="mb-2 font-medium text-ink">Multas</h3>
+        <h3 className="mb-2 font-medium text-ink">Böter</h3>
         {fines.length === 0 ? (
-          <p className="text-sm text-muted">Sin multas.</p>
+          <p className="text-sm text-muted">Inga böter.</p>
         ) : (
           <ul className="divide-y divide-line text-sm">
             {fines.map((fine) => (
@@ -122,12 +122,12 @@ export default function MemberDetail({ memberId, onChange, onEdit }: Props) {
                 </span>
                 {fine.status === 'pending' ? (
                   can.payFines ? (
-                    <Button onClick={() => run(() => membersApi.payFine(memberId, fine.id))}>Pagar</Button>
+                    <Button onClick={() => run(() => membersApi.payFine(memberId, fine.id))}>Betala</Button>
                   ) : (
-                    <Badge color="amber">Pendiente</Badge>
+                    <Badge color="amber">Obetald</Badge>
                   )
                 ) : (
-                  <Badge color="green">Pagada {fine.paidDate}</Badge>
+                  <Badge color="green">Betald {fine.paidDate}</Badge>
                 )}
               </li>
             ))}

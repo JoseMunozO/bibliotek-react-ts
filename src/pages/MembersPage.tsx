@@ -10,7 +10,7 @@ import { parseId } from '../navigation'
 import { useSession } from '../session'
 import { memberStatusColor, memberStatusLabel } from '../utils'
 
-/** Rutas /medlemmar y /medlemmar/:id */
+/** Sökvägarna /medlemmar och /medlemmar/:id */
 export default function MembersPage() {
   const { can } = useSession()
   const navigate = useNavigate()
@@ -66,7 +66,7 @@ export default function MembersPage() {
         </ul>
 
         {selectedId === null ? (
-          <p className="text-muted">Selecciona un socio para ver su ficha.</p>
+          <p className="text-muted">Välj en medlem för att se profilen.</p>
         ) : (
           <MemberDetail
             key={selectedId}
@@ -80,7 +80,7 @@ export default function MembersPage() {
   )
 }
 
-/** Ruta /medlemmar/:id/redigera (solo administrador) */
+/** Sökvägen /medlemmar/:id/redigera (endast administratör) */
 export function EditMemberRoute() {
   const navigate = useNavigate()
   const memberId = parseId(useParams().id)

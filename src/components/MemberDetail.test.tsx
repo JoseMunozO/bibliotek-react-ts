@@ -42,11 +42,11 @@ const renderAs = (role: Role, onEdit?: () => void) =>
   renderWithSession(<MemberDetail memberId={3} onChange={vi.fn()} onEdit={onEdit} />, role, 3)
 
 describe('MemberDetail', () => {
-  it('muestra el perfil con etiquetas en español', async () => {
+  it('visar profilen med svenska etiketter', async () => {
     renderAs('admin')
     expect(await screen.findByText('Oliver Turner')).toBeInTheDocument()
-    expect(screen.getByText(/socio desde 2022-01-10 · Premium/)).toBeInTheDocument()
-    expect(screen.getByText('Activo')).toBeInTheDocument()
+    expect(screen.getByText(/medlem sedan 2022-01-10 · Premium/)).toBeInTheDocument()
+    expect(screen.getByText('Aktiv')).toBeInTheDocument()
     expect(screen.getByText('6.00')).toBeInTheDocument()
   })
 
@@ -54,34 +54,34 @@ describe('MemberDetail', () => {
     ['admin', { suspend: true, pay: true }],
     ['librarian', { suspend: false, pay: true }],
     ['user', { suspend: false, pay: false }],
-  ])('%s: botones según sus permisos', async (role, expected) => {
+  ])('%s: knappar enligt behörigheterna', async (role, expected) => {
     renderAs(role)
     await screen.findByText('Oliver Turner')
 
-    expect(!!screen.queryByRole('button', { name: 'Suspender' })).toBe(expected.suspend)
-    expect(!!screen.queryByRole('button', { name: 'Pagar' })).toBe(expected.pay)
-    if (!expected.pay) expect(screen.getByText('Pendiente')).toBeInTheDocument()
+    expect(!!screen.queryByRole('button', { name: 'Stäng av' })).toBe(expected.suspend)
+    expect(!!screen.queryByRole('button', { name: 'Betala' })).toBe(expected.pay)
+    if (!expected.pay) expect(screen.getByText('Obetald')).toBeInTheDocument()
   })
 
-  it('solo muestra Editar si se le pasa onEdit', async () => {
+  it('visar Redigera bara om onEdit skickas med', async () => {
     const onEdit = vi.fn()
     const { unmount } = renderAs('librarian')
     await screen.findByText('Oliver Turner')
-    expect(screen.queryByRole('button', { name: 'Editar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Redigera' })).not.toBeInTheDocument()
     unmount()
 
     renderAs('admin', onEdit)
-    await userEvent.click(await screen.findByRole('button', { name: 'Editar' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Redigera' }))
     expect(onEdit).toHaveBeenCalledOnce()
   })
 
-  it('al pagar una multa recarga la ficha', async () => {
+  it('laddar om profilen när böter betalas', async () => {
     const user = userEvent.setup()
     renderAs('librarian')
 
-    await user.click(await screen.findByRole('button', { name: 'Pagar' }))
+    await user.click(await screen.findByRole('button', { name: 'Betala' }))
 
-    expect(await screen.findByText('Pagada 2026-10-01')).toBeInTheDocument()
+    expect(await screen.findByText('Betald 2026-10-01')).toBeInTheDocument()
     expect(screen.getByText('0.00')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith('/api/members/3/fines/38/pay', expect.objectContaining({ method: 'POST' }))
   })

@@ -8,7 +8,7 @@ const methodOf = (fetchMock: ReturnType<typeof mockFetch>, n = 0) => fetchMock.m
 describe('booksApi.list', () => {
   it.each([
     [undefined, '/api/books'],
-    [{ search: 'el señor' }, '/api/books?search=el+se%C3%B1or'],
+    [{ search: 'sagan om härskarringen' }, '/api/books?search=sagan+om+h%C3%A4rskarringen'],
     [{ available: true as const }, '/api/books?available=true'],
     [{ sort: 'author' as const }, '/api/books?sort=author'],
   ])('%o → %s', async (query, url) => {
@@ -19,13 +19,13 @@ describe('booksApi.list', () => {
 })
 
 describe('endpoints', () => {
-  it('construye las URLs y métodos esperados', async () => {
+  it('bygger de förväntade URL:erna och metoderna', async () => {
     const fetchMock = mockFetch(() => json({}))
 
     await booksApi.mostBorrowed()
-    await booksApi.addReview(5, { memberId: 7, rating: 4, comment: 'Bien' })
+    await booksApi.addReview(5, { memberId: 7, rating: 4, comment: 'Bra' })
     await membersApi.payFine(3, 38)
-    await membersApi.update(3, { firstName: 'Ana', lastName: 'López', email: 'a@b.se', membershipType: 'premium' })
+    await membersApi.update(3, { firstName: 'Anna', lastName: 'Lindström', email: 'a@b.se', membershipType: 'premium' })
     await loansApi.return(9)
     await notificationsApi.markAsRead(91)
 
@@ -39,14 +39,14 @@ describe('endpoints', () => {
     ])
   })
 
-  it('envía los cuerpos con los campos que espera el backend', async () => {
+  it('skickar kroppar med de fält som backend förväntar sig', async () => {
     const fetchMock = mockFetch(() => json({}))
 
     await loansApi.extend(9, 7)
-    await notificationsApi.create({ memberId: 52, type: 'loan_reminder', message: 'Hola', loanId: undefined })
+    await notificationsApi.create({ memberId: 52, type: 'loan_reminder', message: 'Hej', loanId: undefined })
 
     expect(sentBody(fetchMock, 0)).toEqual({ extraDays: 7 })
-    // loanId opcional: si no hay préstamo no se envía
-    expect(sentBody(fetchMock, 1)).toEqual({ memberId: 52, type: 'loan_reminder', message: 'Hola' })
+    // loanId är valfritt: utan lån skickas det inte
+    expect(sentBody(fetchMock, 1)).toEqual({ memberId: 52, type: 'loan_reminder', message: 'Hej' })
   })
 })

@@ -2,9 +2,9 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach } from 'vitest'
 
-// jsdom no implementa matchMedia: por defecto el sistema está en modo claro.
-// Con defineProperty (y no vi.stubGlobal) se mantiene entre tests; para simular
-// el modo oscuro del sistema, vi.spyOn(window, 'matchMedia') en el test.
+// jsdom implementerar inte matchMedia: som standard är systemet i ljust läge.
+// Med defineProperty (och inte vi.stubGlobal) finns den kvar mellan testerna; för att simulera
+// systemets mörka läge, använd vi.spyOn(window, 'matchMedia') i testet.
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: (query: string): MediaQueryList =>
@@ -20,10 +20,10 @@ Object.defineProperty(window, 'matchMedia', {
     }) as MediaQueryList,
 })
 
-// jsdom tampoco implementa scrollTo (la paginación vuelve arriba al cambiar de página)
+// jsdom implementerar inte heller scrollTo (sidindelningen skrollar upp vid sidbyte)
 Object.defineProperty(window, 'scrollTo', { writable: true, value: () => {} })
 
-// Sin `globals: true` Testing Library no limpia el DOM sola entre tests
+// Utan `globals: true` rensar Testing Library inte DOM:en själv mellan testerna
 afterEach(() => {
   cleanup()
   localStorage.clear()

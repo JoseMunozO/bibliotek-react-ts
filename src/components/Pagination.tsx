@@ -8,20 +8,20 @@ interface Props {
 
 const base = 'min-w-9 rounded-lg px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40'
 
-/** Navegación entre páginas; no se muestra si solo hay una */
+/** Navigering mellan sidor; visas inte om det bara finns en */
 export default function Pagination({ page, totalPages, onChange }: Props) {
   if (totalPages <= 1) return null
 
   return (
-    <nav aria-label="Paginación" className="flex flex-wrap items-center justify-center gap-1">
+    <nav aria-label="Sidnavigering" className="flex flex-wrap items-center justify-center gap-1">
       <button
         type="button"
         onClick={() => onChange(page - 1)}
         disabled={page === 1}
-        aria-label="Página anterior"
+        aria-label="Föregående sida"
         className={`${base} text-ink-soft hover:bg-surface-alt`}
       >
-        ← <span className="hidden sm:inline">Anterior</span>
+        ← <span className="hidden sm:inline">Föregående</span>
       </button>
       {pageWindow(page, totalPages).map((p, i) =>
         p === '…' ? (
@@ -34,7 +34,7 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
             type="button"
             onClick={() => onChange(p)}
             aria-current={p === page ? 'page' : undefined}
-            aria-label={`Página ${p}`}
+            aria-label={`Sida ${p}`}
             className={`${base} ${
               p === page
                 ? 'bg-indigo-600 text-white'
@@ -49,10 +49,10 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
         type="button"
         onClick={() => onChange(page + 1)}
         disabled={page === totalPages}
-        aria-label="Página siguiente"
+        aria-label="Nästa sida"
         className={`${base} text-ink-soft hover:bg-surface-alt`}
       >
-        <span className="hidden sm:inline">Siguiente</span> →
+        <span className="hidden sm:inline">Nästa</span> →
       </button>
     </nav>
   )

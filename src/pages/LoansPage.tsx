@@ -12,7 +12,7 @@ export default function LoansPage() {
   const [overdue, setOverdue] = useState<OverdueLoanDTO[]>([])
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-  // Al crear un préstamo se remonta el formulario para recargar socios y libros
+  // När ett lån skapas monteras formuläret om för att ladda om medlemmar och böcker
   const [formKey, setFormKey] = useState(0)
 
   const load = useCallback(() => {
@@ -29,7 +29,7 @@ export default function LoansPage() {
   }, [load])
 
   async function run(action: () => Promise<string>) {
-    // Vaciar los avisos antes de enviar: así un mismo error repetido se vuelve a anunciar
+    // Töm meddelandena innan något skickas: då läses samma fel upp igen om det upprepas
     setError(null)
     setSuccess(null)
     try {
@@ -45,16 +45,16 @@ export default function LoansPage() {
   const handleReturn = (loan: LoanDTO) =>
     run(async () => {
       const { fineAmount } = await loansApi.return(loan.id)
-      setFormKey((k) => k + 1) // hay un ejemplar más disponible
+      setFormKey((k) => k + 1) // ett exemplar till är ledigt
       return fineAmount > 0
-        ? `"${loan.bookTitle}" devuelto con retraso. Multa: ${formatAmount(fineAmount)}`
-        : `"${loan.bookTitle}" devuelto a tiempo.`
+        ? `"${loan.bookTitle}" återlämnad för sent. Böter: ${formatAmount(fineAmount)}`
+        : `"${loan.bookTitle}" återlämnad i tid.`
     })
 
   const handleExtend = (loan: LoanDTO, days: number) =>
     run(async () => {
       const updated = await loansApi.extend(loan.id, days)
-      return `"${loan.bookTitle}" prorrogado hasta ${updated.dueDate}.`
+      return `"${loan.bookTitle}" förlängd till ${updated.dueDate}.`
     })
 
   return (
@@ -62,7 +62,7 @@ export default function LoansPage() {
       <NewLoanForm
         key={formKey}
         onCreated={() => {
-          setSuccess('Préstamo creado.')
+          setSuccess('Lånet har skapats.')
           setError(null)
           load()
         }}
@@ -72,9 +72,9 @@ export default function LoansPage() {
       <Alert type="success" message={success} />
 
       <section>
-        <h2 className="mb-2 font-medium text-ink">Préstamos activos ({loans.length})</h2>
+        <h2 className="mb-2 font-medium text-ink">Aktiva lån ({loans.length})</h2>
         {loans.length === 0 ? (
-          <p className="text-sm text-muted">No hay préstamos activos.</p>
+          <p className="text-sm text-muted">Det finns inga aktiva lån.</p>
         ) : (
           <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {loans.map((loan) => (
@@ -85,16 +85,16 @@ export default function LoansPage() {
       </section>
 
       <section>
-        <h2 className="mb-2 font-medium text-ink">Vencidos ({overdue.length})</h2>
+        <h2 className="mb-2 font-medium text-ink">Försenade ({overdue.length})</h2>
         {overdue.length === 0 ? (
-          <p className="text-sm text-muted">No hay préstamos vencidos.</p>
+          <p className="text-sm text-muted">Det finns inga försenade lån.</p>
         ) : (
           <ul className="divide-y divide-line rounded-lg border border-red-200 bg-surface dark:border-red-500/40 text-sm">
             {overdue.map((o) => (
               <li key={o.loanId} className="flex flex-wrap justify-between gap-2 p-3">
                 <span className="font-medium text-ink">{o.bookTitle}</span>
                 <span className="text-muted">
-                  {o.memberName} ({o.memberEmail}) · vencido el {o.dueDate}
+                  {o.memberName} ({o.memberEmail}) · förföll {o.dueDate}
                 </span>
               </li>
             ))}
@@ -120,11 +120,11 @@ function LoanRow({ loan, onReturn, onExtend }: LoanRowProps) {
       <div>
         <p className="font-medium text-ink">{loan.bookTitle}</p>
         <p className="text-sm text-muted">
-          {loan.memberName ?? `Socio #${loan.memberId}`} · prestado el {loan.loanDate}
+          {loan.memberName ?? `Medlem #${loan.memberId}`} · utlånad {loan.loanDate}
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {isOverdue ? <Badge color="red">Vencido {loan.dueDate}</Badge> : <Badge>Vence {loan.dueDate}</Badge>}
+        {isOverdue ? <Badge color="red">Försenad {loan.dueDate}</Badge> : <Badge>Förfaller {loan.dueDate}</Badge>}
         {!isOverdue && (
           <>
             <Input
@@ -133,14 +133,14 @@ function LoanRow({ loan, onReturn, onExtend }: LoanRowProps) {
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
               className="w-16"
-              aria-label="Días de prórroga"
+              aria-label="Dagar att förlänga"
             />
             <Button variant="secondary" disabled={days < 1} onClick={() => onExtend(loan, days)}>
-              Prorrogar
+              Förläng
             </Button>
           </>
         )}
-        <Button onClick={() => onReturn(loan)}>Devolver</Button>
+        <Button onClick={() => onReturn(loan)}>Återlämna</Button>
       </div>
     </li>
   )
